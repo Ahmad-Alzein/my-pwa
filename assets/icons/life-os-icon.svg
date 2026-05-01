@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Life OS">
+  <rect width="512" height="512" rx="112" fill="#FAFAF8"/>
+  <rect x="82" y="96" width="348" height="320" rx="44" fill="#F2F0EB" stroke="#D4D0C8" stroke-width="8"/>
+  <path d="M128 170h148" stroke="#C17F59" stroke-width="18" stroke-linecap="round"/>
+  <path d="M128 226h256M128 278h212M128 330h152" stroke="#B9B2A7" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="348" cy="330" r="42" fill="#C17F59" opacity="0.22"/>
+  <circle cx="348" cy="330" r="18" fill="#C17F59"/>
+</svg>

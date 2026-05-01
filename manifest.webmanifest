@@ -1,0 +1,31 @@
+{
+  "name": "Life OS",
+  "short_name": "Life OS",
+  "description": "Life OS personal dashboard",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAFAF8",
+  "theme_color": "#FAFAF8",
+  "icons": [
+    {
+      "src": "assets/icons/life-os-icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/life-os-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/life-os-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
