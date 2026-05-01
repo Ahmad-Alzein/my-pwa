@@ -1,15 +1,14 @@
-// Mobile companion — iOS frame, 5-tab nav including Family
-function Mobile({ state, setState, theme, onToggleTheme }) {
+// Mobile companion — iOS frame for desktop preview, full-screen shell on phones.
+function Mobile({ state, setState, theme, onToggleTheme, framed = true }) {
   const [tab, setTab] = React.useState('home');
   const [sheet, setSheet] = React.useState(null);
   const IOSDevice = window.IOSDevice;
+  const contentPadding = framed ? '64px 16px 90px' : 'calc(16px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom))';
+  const fabBottom = framed ? 96 : 'calc(88px + env(safe-area-inset-bottom))';
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-      <div className="caps" style={{ alignSelf: 'flex-start' }}>Mobile</div>
-      <IOSDevice dark={theme === 'dark'} width={380} height={780}>
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', position: 'relative' }}>
-          <div style={{ flex: 1, overflow: 'auto', padding: '64px 16px 90px' }}>
+  const content = (
+    <div style={{ height: '100%', minHeight: framed ? undefined : '100dvh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', color: 'var(--text-primary)', position: 'relative' }}>
+          <div style={{ flex: 1, overflow: 'auto', padding: contentPadding }}>
             {tab === 'home' && <MobileHome state={state} setState={setState} />}
             {tab === 'tasks' && <MobileTasks state={state} setState={setState} />}
             {tab === 'finance' && <MobileFinance state={state} setState={setState} onAdd={() => setSheet('expense')} />}
@@ -20,7 +19,7 @@ function Mobile({ state, setState, theme, onToggleTheme }) {
           {/* FAB */}
           <button onClick={() => setSheet(tab === 'finance' ? 'expense' : tab === 'family' ? 'family' : 'task')} style={{
             position: 'absolute',
-            bottom: 96, right: 18,
+            bottom: fabBottom, right: 18,
             width: 52, height: 52,
             borderRadius: '50%',
             background: 'var(--accent)',
@@ -67,7 +66,22 @@ function Mobile({ state, setState, theme, onToggleTheme }) {
           <BottomSheet open={sheet === 'task'} onClose={() => setSheet(null)} title="New task">
             <MobileTaskForm onSubmit={(x) => { setState(s => ({ ...s, tasks: [x, ...s.tasks] })); setSheet(null); }} />
           </BottomSheet>
-        </div>
+    </div>
+  );
+
+  if (!framed) {
+    return (
+      <div data-screen-label="atelier-mobile-main" style={{ height: '100dvh', minHeight: '100dvh', overflow: 'hidden', background: 'var(--bg-primary)' }}>
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
+      <div className="caps" style={{ alignSelf: 'flex-start' }}>Mobile</div>
+      <IOSDevice dark={theme === 'dark'} width={380} height={780}>
+        {content}
       </IOSDevice>
       <button onClick={onToggleTheme} style={{ fontSize: 11, color: 'var(--text-muted)', padding: 6 }}>
         Toggle {theme === 'light' ? 'dark' : 'light'}

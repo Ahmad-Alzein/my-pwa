@@ -69,6 +69,33 @@ if (existsSync('sw.js')) {
   }
 }
 
+if (existsSync('src/v2/app.jsx')) {
+  const app = readFileSync('src/v2/app.jsx', 'utf8');
+  const requiredApp = [
+    'function useIsMobileViewport',
+    "window.matchMedia(`(max-width: ${breakpoint}px)`)",
+    'data-screen-label="atelier-mobile-shell"',
+    '<Mobile state={state} setState={setState} theme={theme} onToggleTheme={toggleTheme} framed={false} />',
+  ];
+
+  for (const marker of requiredApp) {
+    if (!app.includes(marker)) errors.push(`src/v2/app.jsx missing marker: ${marker}`);
+  }
+}
+
+if (existsSync('src/v2/mobile.jsx')) {
+  const mobile = readFileSync('src/v2/mobile.jsx', 'utf8');
+  const requiredMobile = [
+    'framed = true',
+    'data-screen-label="atelier-mobile-main"',
+    "framed ? '64px 16px 90px'",
+  ];
+
+  for (const marker of requiredMobile) {
+    if (!mobile.includes(marker)) errors.push(`src/v2/mobile.jsx missing marker: ${marker}`);
+  }
+}
+
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);

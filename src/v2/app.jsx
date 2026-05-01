@@ -27,6 +27,29 @@ function loadState() {
   };
 }
 
+function useIsMobileViewport(breakpoint = 760) {
+  const getMatches = () => {
+    if (!window.matchMedia) return window.innerWidth <= breakpoint;
+    return window.matchMedia(`(max-width: ${breakpoint}px)`).matches;
+  };
+
+  const [isMobile, setIsMobile] = React.useState(getMatches);
+
+  React.useEffect(() => {
+    const query = window.matchMedia(`(max-width: ${breakpoint}px)`);
+    const onChange = () => setIsMobile(query.matches);
+    onChange();
+    if (query.addEventListener) {
+      query.addEventListener('change', onChange);
+      return () => query.removeEventListener('change', onChange);
+    }
+    query.addListener(onChange);
+    return () => query.removeListener(onChange);
+  }, [breakpoint]);
+
+  return isMobile;
+}
+
 function App() {
   const [state, setState] = React.useState(loadState);
   const [route, setRoute] = React.useState('home');
@@ -34,6 +57,7 @@ function App() {
   const [settings, setSettings] = React.useState(TWEAK_DEFAULTS);
   const [tweaksOpen, setTweaksOpen] = React.useState(false);
   const [quickAddOpen, setQuickAddOpen] = React.useState(false);
+  const isMobile = useIsMobileViewport();
 
   // Persist
   React.useEffect(() => {
@@ -87,6 +111,14 @@ function App() {
       document.documentElement.style.setProperty('--accent', theme === 'dark' ? a.dark : a.light);
     }
   }, [theme, settings.accent]);
+
+  if (isMobile) {
+    return (
+      <div style={{ minHeight: '100dvh', background: 'var(--bg-primary)' }} data-screen-label="atelier-mobile-shell">
+        <Mobile state={state} setState={setState} theme={theme} onToggleTheme={toggleTheme} framed={false} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }} data-screen-label="atelier-shell">

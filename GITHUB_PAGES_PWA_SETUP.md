@@ -64,7 +64,50 @@ For example, if your username is `alex` and your repository is `my-pwa`, the URL
 https://alex.github.io/my-pwa/
 ```
 
-## 5. Add the PWA to an iPhone Home Screen
+## 5. Change the Link
+
+You have two practical options.
+
+### Option A: Change the repository name
+
+This changes the last part of the free GitHub Pages URL.
+
+For example, a repository named `life-os` gives you:
+
+```text
+https://YOUR-USERNAME.github.io/life-os/
+```
+
+A repository named `ahmad-life-os` gives you:
+
+```text
+https://YOUR-USERNAME.github.io/ahmad-life-os/
+```
+
+This is the easiest option and does not require buying a domain.
+
+### Option B: Use your own domain or subdomain
+
+If you own a domain, you can use something like:
+
+```text
+https://lifeos.yourdomain.com/
+```
+
+To do that:
+
+1. Open the repository on GitHub.
+2. Go to **Settings**.
+3. Go to **Pages**.
+4. Under **Custom domain**, enter your domain or subdomain.
+5. Save it.
+6. In your domain provider's DNS settings, add the DNS record GitHub asks for.
+7. Wait for GitHub to confirm the domain.
+8. Turn on **Enforce HTTPS** when it becomes available.
+
+You cannot use the exact same GitHub Pages URL or custom domain for two different apps. If another app already uses it, choose a different repository name, a different subdomain, or a different domain.
+
+## 6. Add the PWA to an iPhone Home Screen
 
 1. Open the published GitHub Pages URL in **Safari** on the iPhone.
 2. Tap the **Share** button.
