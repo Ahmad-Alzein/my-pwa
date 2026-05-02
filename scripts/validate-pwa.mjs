@@ -53,7 +53,7 @@ if (existsSync('manifest.webmanifest')) {
 if (existsSync('sw.js')) {
   const sw = readFileSync('sw.js', 'utf8');
   const requiredSw = [
-    "const CACHE_NAME = 'life-os-pwa-v3';",
+    "const CACHE_NAME = 'life-os-pwa-v5';",
     'Life OS v2.html',
     'src/v2/app.jsx',
     'manifest.webmanifest',
@@ -80,6 +80,7 @@ if (existsSync('src/v2/app.jsx')) {
     'navigator.userAgent',
     'data-screen-label="atelier-mobile-shell"',
     '<Mobile state={state} setState={setState} theme={theme} onToggleTheme={toggleTheme} framed={false} />',
+    'false && settings.showMobile',
   ];
 
   for (const marker of requiredApp) {
@@ -93,10 +94,61 @@ if (existsSync('src/v2/mobile.jsx')) {
     'framed = true',
     'data-screen-label="atelier-mobile-main"',
     "framed ? '64px 16px 90px'",
+    "const [financeTab, setFinanceTab] = React.useState('overview')",
+    "setSheet({ type: 'expense', item: e })",
+    "setSheet({ type: 'task', item: t })",
+    'MobileExpenseForm initial=',
+    'MobileTaskForm initial=',
   ];
 
   for (const marker of requiredMobile) {
     if (!mobile.includes(marker)) errors.push(`src/v2/mobile.jsx missing marker: ${marker}`);
+  }
+}
+
+if (existsSync('src/v2/tasks.jsx')) {
+  const tasks = readFileSync('src/v2/tasks.jsx', 'utf8');
+  const requiredTasks = [
+    'const [editingTask, setEditingTask]',
+    'deleteTask',
+    'onEdit={() => setEditingTask(t)}',
+    'onDelete={() => deleteTask(t.id)}',
+    'QuickTaskModal open={!!editingTask}',
+  ];
+
+  for (const marker of requiredTasks) {
+    if (!tasks.includes(marker)) errors.push(`src/v2/tasks.jsx missing marker: ${marker}`);
+  }
+}
+
+if (existsSync('src/v2/finance.jsx')) {
+  const finance = readFileSync('src/v2/finance.jsx', 'utf8');
+  const requiredFinance = [
+    'const [editingExpense, setEditingExpense]',
+    'deleteExpense',
+    'onEdit={() => setEditingExpense(e)}',
+    'onDelete={() => deleteExpense(e.id)}',
+    'QuickExpenseModal open={!!editingExpense}',
+  ];
+
+  for (const marker of requiredFinance) {
+    if (!finance.includes(marker)) errors.push(`src/v2/finance.jsx missing marker: ${marker}`);
+  }
+}
+
+if (existsSync('src/v2/modals.jsx')) {
+  const modals = readFileSync('src/v2/modals.jsx', 'utf8');
+  const requiredModals = [
+    'function QuickTaskModal({ open, onClose, onSave, initial })',
+    'function QuickExpenseModal({ open, onClose, onSave, initial })',
+    "initial ? 'Edit task' : 'Add a task'",
+    "initial ? 'Save changes' : 'Add task'",
+    "initial ? 'Edit expense' : 'Log an expense'",
+    "initial ? 'Save changes' : 'Log'",
+  ];
+
+  for (const marker of requiredModals) {
+    if (!modals.includes(marker)) errors.push(`src/v2/modals.jsx missing marker: ${marker}`);
   }
 }
 

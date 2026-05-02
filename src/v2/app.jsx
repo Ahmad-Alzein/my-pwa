@@ -162,7 +162,7 @@ function App() {
           {route === 'learn' && <Learn state={state} setState={setState} />}
         </div>
 
-        {settings.showMobile && (
+        {false && settings.showMobile && (
           <aside className="atelier-mobile-aside" style={{
             width: 440,
             flexShrink: 0,

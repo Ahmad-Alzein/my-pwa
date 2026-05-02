@@ -10,14 +10,14 @@ function Mobile({ state, setState, theme, onToggleTheme, framed = true }) {
     <div style={{ height: '100%', minHeight: framed ? undefined : '100dvh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', color: 'var(--text-primary)', position: 'relative' }}>
           <div style={{ flex: 1, overflow: 'auto', padding: contentPadding }}>
             {tab === 'home' && <MobileHome state={state} setState={setState} />}
-            {tab === 'tasks' && <MobileTasks state={state} setState={setState} />}
-            {tab === 'finance' && <MobileFinance state={state} setState={setState} onAdd={() => setSheet('expense')} />}
-            {tab === 'family' && <MobileFamily state={state} setState={setState} onAdd={() => setSheet('family')} />}
+            {tab === 'tasks' && <MobileTasks state={state} setState={setState} onEdit={(t) => setSheet({ type: 'task', item: t })} />}
+            {tab === 'finance' && <MobileFinance state={state} setState={setState} onAdd={() => setSheet({ type: 'expense' })} onEdit={(e) => setSheet({ type: 'expense', item: e })} />}
+            {tab === 'family' && <MobileFamily state={state} setState={setState} onAdd={() => setSheet({ type: 'family' })} />}
             {tab === 'learn' && <MobileLearn state={state} />}
           </div>
 
           {/* FAB */}
-          <button onClick={() => setSheet(tab === 'finance' ? 'expense' : tab === 'family' ? 'family' : 'task')} style={{
+          <button onClick={() => setSheet({ type: tab === 'finance' ? 'expense' : tab === 'family' ? 'family' : 'task' })} style={{
             position: 'absolute',
             bottom: fabBottom, right: 18,
             width: 52, height: 52,
@@ -57,14 +57,30 @@ function Mobile({ state, setState, theme, onToggleTheme, framed = true }) {
           </div>
 
           {/* Sheets */}
-          <BottomSheet open={sheet === 'expense'} onClose={() => setSheet(null)} title="Log expense">
-            <MobileExpenseForm onSubmit={(x) => { setState(s => ({ ...s, expenses: [x, ...s.expenses] })); setSheet(null); }} />
+          <BottomSheet open={sheet?.type === 'expense'} onClose={() => setSheet(null)} title={sheet?.item ? 'Edit expense' : 'Log expense'}>
+            <MobileExpenseForm initial={sheet?.item} onSubmit={(x) => {
+              setState(s => ({
+                ...s,
+                expenses: sheet?.item
+                  ? s.expenses.map(e => e.id === x.id ? x : e)
+                  : [x, ...s.expenses]
+              }));
+              setSheet(null);
+            }} />
           </BottomSheet>
-          <BottomSheet open={sheet === 'family'} onClose={() => setSheet(null)} title="Family entry">
+          <BottomSheet open={sheet?.type === 'family'} onClose={() => setSheet(null)} title="Family entry">
             <MobileFamilyForm onSubmit={(x) => { setState(s => ({ ...s, family: { ...s.family, transactions: [x, ...s.family.transactions] }})); setSheet(null); }} />
           </BottomSheet>
-          <BottomSheet open={sheet === 'task'} onClose={() => setSheet(null)} title="New task">
-            <MobileTaskForm onSubmit={(x) => { setState(s => ({ ...s, tasks: [x, ...s.tasks] })); setSheet(null); }} />
+          <BottomSheet open={sheet?.type === 'task'} onClose={() => setSheet(null)} title={sheet?.item ? 'Edit task' : 'New task'}>
+            <MobileTaskForm initial={sheet?.item} onSubmit={(x) => {
+              setState(s => ({
+                ...s,
+                tasks: sheet?.item
+                  ? s.tasks.map(t => t.id === x.id ? x : t)
+                  : [x, ...s.tasks]
+              }));
+              setSheet(null);
+            }} />
           </BottomSheet>
     </div>
   );
@@ -122,10 +138,14 @@ function MobileHome({ state }) {
   );
 }
 
-function MobileTasks({ state, setState }) {
+function MobileTasks({ state, setState, onEdit }) {
   const todayISO = window.iso(new Date());
   const open = state.tasks.filter(t => t.status !== 'done').slice(0, 12);
   const toggle = (id) => setState(s => ({ ...s, tasks: s.tasks.map(t => t.id === id ? { ...t, status: t.status === 'done' ? 'todo' : 'done' } : t) }));
+  const remove = (id) => {
+    if (!window.confirm('Delete this task?')) return;
+    setState(s => ({ ...s, tasks: s.tasks.filter(t => t.id !== id) }));
+  };
   return (
     <div>
       <h1 className="serif" style={{ margin: '4px 0 16px', fontSize: 24, fontWeight: 500, letterSpacing: '-0.01em' }}>Tasks</h1>
@@ -143,6 +163,10 @@ function MobileTasks({ state, setState }) {
                 <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{t.title}</div>
                 <div style={{ fontSize: 10, color: overdue ? 'var(--danger)' : 'var(--text-muted)', marginTop: 3 }}>{t.priority.toUpperCase()} · {window.relativeDate(t.due_date)}</div>
               </div>
+              <div style={{ display: 'flex', gap: 2 }}>
+                <button onClick={() => onEdit(t)} title="Edit" style={mobileIconButtonStyle}><Icon name="edit" size={14} /></button>
+                <button onClick={() => remove(t.id)} title="Delete" style={{ ...mobileIconButtonStyle, color: 'var(--danger)' }}><Icon name="trash" size={14} /></button>
+              </div>
             </div>
           );
         })}
@@ -151,27 +175,97 @@ function MobileTasks({ state, setState }) {
   );
 }
 
-function MobileFinance({ state, onAdd }) {
+function MobileFinance({ state, setState, onAdd, onEdit }) {
+  const [financeTab, setFinanceTab] = React.useState('overview');
   const ym = window.iso(new Date()).slice(0, 7);
   const monthSpend = state.expenses.filter(e => e.date.startsWith(ym)).reduce((a,b) => a+b.amount, 0);
+  const monthIncome = state.income.filter(e => e.date.startsWith(ym)).reduce((a,b) => a+b.amount, 0);
+  const totalSavings = state.savings.accounts.reduce((sum, acc) => {
+    const txs = state.savings.transactions.filter(t => t.account_id === acc.id);
+    return sum + txs.reduce((s, t) => s + (t.transaction_type === 'deposit' ? t.amount : -t.amount), 0);
+  }, 0);
+  const removeExpense = (id) => {
+    if (!window.confirm('Delete this expense?')) return;
+    setState(s => ({ ...s, expenses: s.expenses.filter(e => e.id !== id) }));
+  };
   return (
     <div>
       <h1 className="serif" style={{ margin: '4px 0 16px', fontSize: 24, fontWeight: 500, letterSpacing: '-0.01em' }}>Finance</h1>
-      <Card padding="20px" style={{ marginBottom: 14 }}>
-        <div className="caps" style={{ marginBottom: 8 }}>This month</div>
-        <Amount value={monthSpend} size="xxl" />
-      </Card>
-      <Card padding="0">
-        {state.expenses.slice(0, 12).map((e, i) => (
-          <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderBottom: '1px solid var(--border-soft)' }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13 }}>{e.source}</div>
-              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{e.tag} · {e.date}</div>
-            </div>
-            <Amount value={-e.amount} size="sm" tone="expense" />
+      <Segmented
+        value={financeTab}
+        onChange={setFinanceTab}
+        options={[
+          { value: 'overview', label: 'Overview' },
+          { value: 'expenses', label: 'Expenses' },
+          { value: 'income', label: 'Income' },
+          { value: 'savings', label: 'Savings' },
+          { value: 'family', label: 'Family' },
+        ]}
+        style={{ width: '100%', display: 'flex', overflowX: 'auto', marginBottom: 14 }}
+      />
+
+      {financeTab === 'overview' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <Card padding="20px">
+            <div className="caps" style={{ marginBottom: 8 }}>This month</div>
+            <Amount value={monthSpend} size="xxl" />
+          </Card>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <Card padding="14px"><div className="caps" style={{ fontSize: 10 }}>Income</div><Amount value={monthIncome} size="lg" tone="income" /></Card>
+            <Card padding="14px"><div className="caps" style={{ fontSize: 10 }}>Savings</div><Amount value={totalSavings} size="lg" tone="accent" /></Card>
           </div>
-        ))}
-      </Card>
+        </div>
+      )}
+
+      {financeTab === 'expenses' && (
+        <Card padding="0">
+          {state.expenses.slice(0, 20).map((e, i) => (
+            <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderBottom: '1px solid var(--border-soft)' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13 }}>{e.source}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{e.tag} · {e.date}</div>
+              </div>
+              <Amount value={-e.amount} size="sm" tone="expense" />
+              <button onClick={() => onEdit(e)} title="Edit" style={mobileIconButtonStyle}><Icon name="edit" size={14} /></button>
+              <button onClick={() => removeExpense(e.id)} title="Delete" style={{ ...mobileIconButtonStyle, color: 'var(--danger)' }}><Icon name="trash" size={14} /></button>
+            </div>
+          ))}
+        </Card>
+      )}
+
+      {financeTab === 'income' && (
+        <Card padding="0">
+          {state.income.map((e, i) => (
+            <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderBottom: '1px solid var(--border-soft)' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13 }}>{e.source}</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{e.tag} · {e.date}</div>
+              </div>
+              <Amount value={e.amount} size="sm" tone="income" />
+            </div>
+          ))}
+        </Card>
+      )}
+
+      {financeTab === 'savings' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {state.savings.accounts.map(acc => {
+            const txs = state.savings.transactions.filter(t => t.account_id === acc.id);
+            const balance = txs.reduce((s, t) => s + (t.transaction_type === 'deposit' ? t.amount : -t.amount), 0);
+            return (
+              <Card key={acc.id} padding="14px">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <div className="serif" style={{ fontSize: 15 }}>{acc.name}</div>
+                  <Amount value={balance} size="lg" tone="accent" />
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Target <Amount value={acc.target_amount} size="sm" tone="muted" /></div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {financeTab === 'family' && <MobileFamily state={state} />}
     </div>
   );
 }
@@ -233,14 +327,34 @@ function MobileLearn({ state }) {
   );
 }
 
-function MobileExpenseForm({ onSubmit }) {
-  const [src, setSrc] = React.useState(''); const [amt, setAmt] = React.useState(''); const [tag, setTag] = React.useState('Groceries');
+const mobileIconButtonStyle = {
+  width: 32,
+  height: 32,
+  borderRadius: 'var(--radius-md)',
+  display: 'grid',
+  placeItems: 'center',
+  color: 'var(--text-muted)',
+  flexShrink: 0,
+};
+
+function MobileExpenseForm({ onSubmit, initial }) {
+  const [src, setSrc] = React.useState(initial?.source || '');
+  const [amt, setAmt] = React.useState(initial ? String(initial.amount) : '');
+  const [tag, setTag] = React.useState(initial?.tag || 'Groceries');
+  const [date, setDate] = React.useState(initial?.date || window.iso(new Date()));
+  React.useEffect(() => {
+    setSrc(initial?.source || '');
+    setAmt(initial ? String(initial.amount) : '');
+    setTag(initial?.tag || 'Groceries');
+    setDate(initial?.date || window.iso(new Date()));
+  }, [initial]);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <Field label="Source"><Input autoFocus value={src} onChange={e => setSrc(e.target.value)} placeholder="Carrefour" /></Field>
       <Field label="Amount"><Input value={amt} onChange={e => setAmt(e.target.value)} placeholder="0.00" inputMode="decimal" /></Field>
+      <Field label="Date"><Input type="date" value={date} onChange={e => setDate(e.target.value)} /></Field>
       <Field label="Tag"><Select value={tag} onChange={e => setTag(e.target.value)}>{['Groceries','Dining Out','Transportation','Healthcare','Other'].map(t => <option key={t}>{t}</option>)}</Select></Field>
-      <Button onClick={() => { if (src && parseFloat(amt)) onSubmit({ id: 'e' + Date.now(), source: src, amount: parseFloat(amt), tag, date: window.iso(new Date()), notes: '' }); }}>Log</Button>
+      <Button onClick={() => { if (src && parseFloat(amt)) onSubmit({ ...(initial || { id: 'e' + Date.now(), notes: '' }), source: src, amount: parseFloat(amt), tag, date }); }}>{initial ? 'Save changes' : 'Log'}</Button>
     </div>
   );
 }
@@ -258,12 +372,27 @@ function MobileFamilyForm({ onSubmit }) {
   );
 }
 
-function MobileTaskForm({ onSubmit }) {
-  const [t, setT] = React.useState('');
+function MobileTaskForm({ onSubmit, initial }) {
+  const [t, setT] = React.useState(initial?.title || '');
+  const [type, setType] = React.useState(initial?.type || 'work');
+  const [priority, setPriority] = React.useState(initial?.priority || 'p2');
+  const [status, setStatus] = React.useState(initial?.status || 'todo');
+  const [due, setDue] = React.useState(initial?.due_date || window.iso(new Date()));
+  React.useEffect(() => {
+    setT(initial?.title || '');
+    setType(initial?.type || 'work');
+    setPriority(initial?.priority || 'p2');
+    setStatus(initial?.status || 'todo');
+    setDue(initial?.due_date || window.iso(new Date()));
+  }, [initial]);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <Field label="Title"><Input autoFocus value={t} onChange={e => setT(e.target.value)} /></Field>
-      <Button onClick={() => { if (t) onSubmit({ id: 'tk' + Date.now(), title: t, type: 'work', priority: 'p2', status: 'todo', due_date: window.iso(new Date()) }); }}>Add</Button>
+      <Field label="Type"><Select value={type} onChange={e => setType(e.target.value)}><option value="work">Work</option><option value="personal">Personal</option></Select></Field>
+      <Field label="Priority"><Select value={priority} onChange={e => setPriority(e.target.value)}><option value="p0">P0</option><option value="p1">P1</option><option value="p2">P2</option><option value="p3">P3</option></Select></Field>
+      <Field label="Status"><Select value={status} onChange={e => setStatus(e.target.value)}><option value="todo">To do</option><option value="in_progress">In progress</option><option value="blocked">Blocked</option><option value="done">Done</option></Select></Field>
+      <Field label="Due"><Input type="date" value={due} onChange={e => setDue(e.target.value)} /></Field>
+      <Button onClick={() => { if (t) onSubmit({ ...(initial || { id: 'tk' + Date.now() }), title: t, type, priority, status, due_date: due }); }}>{initial ? 'Save changes' : 'Add'}</Button>
     </div>
   );
 }

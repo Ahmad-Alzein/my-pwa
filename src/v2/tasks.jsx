@@ -4,6 +4,7 @@ function Tasks({ state, setState }) {
   const [view, setView] = React.useState('today');
   const [filter, setFilter] = React.useState('');
   const [addOpen, setAddOpen] = React.useState(false);
+  const [editingTask, setEditingTask] = React.useState(null);
 
   const filtered = state.tasks
     .filter(t => t.type === tab)
@@ -19,6 +20,14 @@ function Tasks({ state, setState }) {
     ...s,
     tasks: s.tasks.map(t => t.id === id ? { ...t, status: t.status === 'done' ? 'todo' : 'done' } : t)
   }));
+  const saveTask = (task) => setState(s => ({
+    ...s,
+    tasks: s.tasks.map(t => t.id === task.id ? task : t)
+  }));
+  const deleteTask = (id) => {
+    if (!window.confirm('Delete this task?')) return;
+    setState(s => ({ ...s, tasks: s.tasks.filter(t => t.id !== id) }));
+  };
 
   const totalOpen = filtered.filter(t => t.status !== 'done').length;
 
@@ -54,7 +63,7 @@ function Tasks({ state, setState }) {
             <section>
               <SectionTitle eyebrow={`${overdue.length} · behind schedule`}>Overdue</SectionTitle>
               <Card padding="0">
-                {overdue.map(t => <TaskRow2 key={t.id} task={t} onToggle={() => toggle(t.id)} tone="danger" />)}
+                {overdue.map(t => <TaskRow2 key={t.id} task={t} onToggle={() => toggle(t.id)} tone="danger" onEdit={() => setEditingTask(t)} onDelete={() => deleteTask(t.id)} />)}
               </Card>
             </section>
           )}
@@ -63,27 +72,27 @@ function Tasks({ state, setState }) {
             <Card padding="0">
               {todays.length === 0 ? (
                 <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>Nothing on the slate.</div>
-              ) : todays.map(t => <TaskRow2 key={t.id} task={t} onToggle={() => toggle(t.id)} />)}
+              ) : todays.map(t => <TaskRow2 key={t.id} task={t} onToggle={() => toggle(t.id)} onEdit={() => setEditingTask(t)} onDelete={() => deleteTask(t.id)} />)}
             </Card>
           </section>
           <section>
             <SectionTitle eyebrow={`${upcoming.length} ahead`}>Upcoming</SectionTitle>
             <Card padding="0">
-              {upcoming.slice(0, 10).map(t => <TaskRow2 key={t.id} task={t} onToggle={() => toggle(t.id)} />)}
+              {upcoming.slice(0, 10).map(t => <TaskRow2 key={t.id} task={t} onToggle={() => toggle(t.id)} onEdit={() => setEditingTask(t)} onDelete={() => deleteTask(t.id)} />)}
             </Card>
           </section>
           {done.length > 0 && (
             <section>
               <SectionTitle eyebrow={`${done.length} shipped`}>Done recently</SectionTitle>
               <Card padding="0">
-                {done.slice(0, 5).map(t => <TaskRow2 key={t.id} task={t} onToggle={() => toggle(t.id)} />)}
+                {done.slice(0, 5).map(t => <TaskRow2 key={t.id} task={t} onToggle={() => toggle(t.id)} onEdit={() => setEditingTask(t)} onDelete={() => deleteTask(t.id)} />)}
               </Card>
             </section>
           )}
         </div>
       )}
 
-      {view === 'board' && <KanbanBoard tasks={filtered} setState={setState} />}
+      {view === 'board' && <KanbanBoard tasks={filtered} setState={setState} onEdit={setEditingTask} onDelete={deleteTask} />}
 
       {view === 'list' && (
         <Card padding="0">
@@ -96,6 +105,7 @@ function Tasks({ state, setState }) {
                 <th style={thStyle} width="80">Priority</th>
                 <th style={thStyle} width="140">Project</th>
                 <th style={thStyle} width="110">Due</th>
+                <th style={{ ...thStyle, textAlign: 'right' }} width="90">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -111,6 +121,9 @@ function Tasks({ state, setState }) {
                   <td style={tdStyle}><span style={{ fontSize: 11, fontWeight: 500, color: priorityColor(t.priority), textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.priority}</span></td>
                   <td style={{ ...tdStyle, color: 'var(--text-secondary)', fontSize: 13 }}>{t.project || t.category || '—'}</td>
                   <td style={{ ...tdStyle, color: t.due_date < todayISO && t.status !== 'done' ? 'var(--danger)' : 'var(--text-secondary)', fontSize: 13 }} className="mono">{relativeDate(t.due_date)}</td>
+                  <td style={{ ...tdStyle, textAlign: 'right' }}>
+                    <RowActions onEdit={() => setEditingTask(t)} onDelete={() => deleteTask(t.id)} />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -121,6 +134,7 @@ function Tasks({ state, setState }) {
       <QuickTaskModal open={addOpen} onClose={() => setAddOpen(false)} onSave={(t) => {
         setState(s => ({ ...s, tasks: [t, ...s.tasks] }));
       }} />
+      <QuickTaskModal open={!!editingTask} initial={editingTask} onClose={() => setEditingTask(null)} onSave={saveTask} />
     </PageContainer>
   );
 }
@@ -139,7 +153,29 @@ const checkboxStyle = (done) => ({
 const statusTone = (s) => ({ todo: 'muted', in_progress: 'warning', blocked: 'danger', done: 'success' }[s] || 'muted');
 const priorityColor = (p) => ({ p0: 'var(--danger)', p1: 'var(--warning)', p2: 'var(--text-secondary)', p3: 'var(--text-muted)' }[p]);
 
-function TaskRow2({ task, onToggle, tone }) {
+function RowActions({ onEdit, onDelete }) {
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+      <button onClick={onEdit} title="Edit" style={actionButtonStyle}>
+        <Icon name="edit" size={14} />
+      </button>
+      <button onClick={onDelete} title="Delete" style={{ ...actionButtonStyle, color: 'var(--danger)' }}>
+        <Icon name="trash" size={14} />
+      </button>
+    </div>
+  );
+}
+
+const actionButtonStyle = {
+  width: 30,
+  height: 30,
+  borderRadius: 'var(--radius-sm)',
+  display: 'inline-grid',
+  placeItems: 'center',
+  color: 'var(--text-muted)',
+};
+
+function TaskRow2({ task, onToggle, tone, onEdit, onDelete }) {
   const done = task.status === 'done';
   const todayISO = window.iso(new Date());
   const overdue = task.status !== 'done' && task.due_date < todayISO;
@@ -165,11 +201,12 @@ function TaskRow2({ task, onToggle, tone }) {
         </div>
       </div>
       <div className="mono" style={{ fontSize: 12, color: overdue ? 'var(--danger)' : 'var(--text-muted)', flexShrink: 0 }}>{relativeDate(task.due_date)}</div>
+      <RowActions onEdit={onEdit} onDelete={onDelete} />
     </div>
   );
 }
 
-function KanbanBoard({ tasks, setState }) {
+function KanbanBoard({ tasks, setState, onEdit, onDelete }) {
   const cols = [
     { id: 'todo', label: 'To do', tone: 'muted' },
     { id: 'in_progress', label: 'In progress', tone: 'warning' },
@@ -218,6 +255,9 @@ function KanbanBoard({ tasks, setState }) {
                   <span style={{ color: priorityColor(t.priority), fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.priority}</span>
                   <span>·</span>
                   <span>{t.project || t.category || ''}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                  <RowActions onEdit={() => onEdit(t)} onDelete={() => onDelete(t.id)} />
                 </div>
               </div>
             ))}

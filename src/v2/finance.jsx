@@ -155,11 +155,20 @@ function ExpensesTab({ state, setState }) {
   const [tagFilter, setTagFilter] = React.useState('all');
   const [search, setSearch] = React.useState('');
   const [addOpen, setAddOpen] = React.useState(false);
+  const [editingExpense, setEditingExpense] = React.useState(null);
   const tags = ['all', ...Array.from(new Set(state.expenses.map(e => e.tag)))];
   const rows = state.expenses
     .filter(e => tagFilter === 'all' || e.tag === tagFilter)
     .filter(e => !search || e.source.toLowerCase().includes(search.toLowerCase()));
   const total = rows.reduce((a,b) => a + b.amount, 0);
+  const saveExpense = (expense) => setState(s => ({
+    ...s,
+    expenses: s.expenses.map(e => e.id === expense.id ? expense : e)
+  }));
+  const deleteExpense = (id) => {
+    if (!window.confirm('Delete this expense?')) return;
+    setState(s => ({ ...s, expenses: s.expenses.filter(e => e.id !== id) }));
+  };
   return (
     <div>
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -178,6 +187,7 @@ function ExpensesTab({ state, setState }) {
             <th style={thStyle2}>Source</th>
             <th style={thStyle2}>Category</th>
             <th style={{ ...thStyle2, textAlign: 'right' }}>Amount</th>
+            <th style={{ ...thStyle2, textAlign: 'right' }}>Actions</th>
           </tr></thead>
           <tbody>
             {rows.slice(0, 60).map(e => (
@@ -186,12 +196,16 @@ function ExpensesTab({ state, setState }) {
                 <td style={tdStyle2}>{e.source}</td>
                 <td style={{ ...tdStyle2 }}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{e.tag}</span></td>
                 <td style={{ ...tdStyle2, textAlign: 'right' }}><Amount value={-e.amount} tone="expense" size="sm" /></td>
+                <td style={{ ...tdStyle2, textAlign: 'right' }}>
+                  <FinanceRowActions onEdit={() => setEditingExpense(e)} onDelete={() => deleteExpense(e.id)} />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </Card>
       <QuickExpenseModal open={addOpen} onClose={() => setAddOpen(false)} onSave={(x) => setState(s => ({ ...s, expenses: [x, ...s.expenses] }))} />
+      <QuickExpenseModal open={!!editingExpense} initial={editingExpense} onClose={() => setEditingExpense(null)} onSave={saveExpense} />
     </div>
   );
 }
@@ -264,5 +278,27 @@ function SavingsTab({ state, setState, savingsByAccount }) {
 
 const thStyle2 = { textAlign: 'left', padding: '14px 20px', fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' };
 const tdStyle2 = { padding: '14px 20px', fontSize: 14 };
+
+function FinanceRowActions({ onEdit, onDelete }) {
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+      <button onClick={onEdit} title="Edit" style={financeActionButtonStyle}>
+        <Icon name="edit" size={14} />
+      </button>
+      <button onClick={onDelete} title="Delete" style={{ ...financeActionButtonStyle, color: 'var(--danger)' }}>
+        <Icon name="trash" size={14} />
+      </button>
+    </div>
+  );
+}
+
+const financeActionButtonStyle = {
+  width: 30,
+  height: 30,
+  borderRadius: 'var(--radius-sm)',
+  display: 'inline-grid',
+  placeItems: 'center',
+  color: 'var(--text-muted)',
+};
 
 Object.assign(window, { Finance });
