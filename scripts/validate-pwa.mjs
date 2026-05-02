@@ -53,6 +53,7 @@ if (existsSync('manifest.webmanifest')) {
 if (existsSync('sw.js')) {
   const sw = readFileSync('sw.js', 'utf8');
   const requiredSw = [
+    "const CACHE_NAME = 'life-os-pwa-v3';",
     'Life OS v2.html',
     'src/v2/app.jsx',
     'manifest.webmanifest',
@@ -72,8 +73,11 @@ if (existsSync('sw.js')) {
 if (existsSync('src/v2/app.jsx')) {
   const app = readFileSync('src/v2/app.jsx', 'utf8');
   const requiredApp = [
+    'function isMobileLikeViewport',
     'function useIsMobileViewport',
     "window.matchMedia(`(max-width: ${breakpoint}px)`)",
+    "window.matchMedia('(pointer: coarse) and (max-width: 1024px)')",
+    'navigator.userAgent',
     'data-screen-label="atelier-mobile-shell"',
     '<Mobile state={state} setState={setState} theme={theme} onToggleTheme={toggleTheme} framed={false} />',
   ];

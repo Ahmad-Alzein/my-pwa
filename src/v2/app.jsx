@@ -27,24 +27,47 @@ function loadState() {
   };
 }
 
-function useIsMobileViewport(breakpoint = 760) {
-  const getMatches = () => {
-    if (!window.matchMedia) return window.innerWidth <= breakpoint;
-    return window.matchMedia(`(max-width: ${breakpoint}px)`).matches;
-  };
+function isMobileLikeViewport(breakpoint = 760) {
+  const viewportWidth = window.visualViewport?.width || window.innerWidth || document.documentElement.clientWidth || 0;
+  const narrowViewport = viewportWidth <= breakpoint;
+  if (!window.matchMedia) return narrowViewport;
 
+  const narrowLayout = window.matchMedia(`(max-width: ${breakpoint}px)`).matches;
+  const coarsePhone = window.matchMedia('(pointer: coarse) and (max-width: 1024px)').matches;
+  const touchPhone = window.matchMedia('(hover: none) and (max-width: 1024px)').matches;
+  const handheldUA = /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent);
+
+  return narrowViewport || narrowLayout || coarsePhone || touchPhone || handheldUA;
+}
+
+function useIsMobileViewport(breakpoint = 760) {
+  const getMatches = () => isMobileLikeViewport(breakpoint);
   const [isMobile, setIsMobile] = React.useState(getMatches);
 
   React.useEffect(() => {
-    const query = window.matchMedia(`(max-width: ${breakpoint}px)`);
-    const onChange = () => setIsMobile(query.matches);
+    const queries = window.matchMedia ? [
+      window.matchMedia(`(max-width: ${breakpoint}px)`),
+      window.matchMedia('(pointer: coarse) and (max-width: 1024px)'),
+      window.matchMedia('(hover: none) and (max-width: 1024px)'),
+    ] : [];
+    const onChange = () => setIsMobile(isMobileLikeViewport(breakpoint));
     onChange();
-    if (query.addEventListener) {
-      query.addEventListener('change', onChange);
-      return () => query.removeEventListener('change', onChange);
-    }
-    query.addListener(onChange);
-    return () => query.removeListener(onChange);
+    queries.forEach((query) => {
+      if (query.addEventListener) query.addEventListener('change', onChange);
+      else query.addListener(onChange);
+    });
+    window.addEventListener('resize', onChange);
+    window.addEventListener('orientationchange', onChange);
+    window.visualViewport?.addEventListener('resize', onChange);
+    return () => {
+      queries.forEach((query) => {
+        if (query.removeEventListener) query.removeEventListener('change', onChange);
+        else query.removeListener(onChange);
+      });
+      window.removeEventListener('resize', onChange);
+      window.removeEventListener('orientationchange', onChange);
+      window.visualViewport?.removeEventListener('resize', onChange);
+    };
   }, [breakpoint]);
 
   return isMobile;
