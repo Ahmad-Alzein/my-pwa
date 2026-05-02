@@ -9,6 +9,7 @@ function FamilyLedger({ state, setState }) {
   const latestSnap = family.snapshots[family.snapshots.length - 1];
 
   const [addOpen, setAddOpen] = React.useState(false);
+  const [editingEntry, setEditingEntry] = React.useState(null);
   const [noteText, setNoteText] = React.useState('');
 
   const addNote = () => {
@@ -20,6 +21,21 @@ function FamilyLedger({ state, setState }) {
     ...s,
     family: { ...s.family, notes: s.family.notes.map(n => n.id === id ? { ...n, is_resolved: !n.is_resolved, resolved_at: !n.is_resolved ? window.iso(new Date()) : null } : n) }
   }));
+  const saveEntry = (entry) => setState(s => ({
+    ...s,
+    family: {
+      ...s.family,
+      transactions: s.family.transactions.map(t => t.id === entry.id ? entry : t)
+    }
+  }));
+  const deleteEntry = (id) => {
+    if (!window.confirm('Delete this family entry?')) return;
+    setState(s => ({ ...s, family: { ...s.family, transactions: s.family.transactions.filter(t => t.id !== id) } }));
+  };
+  const deleteNote = (id) => {
+    if (!window.confirm('Delete this note?')) return;
+    setState(s => ({ ...s, family: { ...s.family, notes: s.family.notes.filter(n => n.id !== id) } }));
+  };
 
   // Tag breakdown
   const byTag = {};
@@ -97,6 +113,7 @@ function FamilyLedger({ state, setState }) {
                   tone={t.transaction_type === 'income' ? 'income' : 'expense'}
                   size="sm"
                 />
+                <FinanceRowActions onEdit={() => setEditingEntry(t)} onDelete={() => deleteEntry(t.id)} />
               </div>
             ))}
           </div>
@@ -111,14 +128,14 @@ function FamilyLedger({ state, setState }) {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {family.notes.map(n => (
-              <button key={n.id} onClick={() => toggleNote(n.id)} style={{
+              <div key={n.id} style={{
                 display: 'flex', alignItems: 'flex-start', gap: 10,
                 padding: '10px 4px',
                 borderBottom: '1px solid var(--border-soft)',
                 textAlign: 'left',
                 width: '100%',
               }}>
-                <div style={{
+                <button onClick={() => toggleNote(n.id)} style={{
                   width: 16, height: 16, borderRadius: 4,
                   border: `1.5px solid ${n.is_resolved ? 'var(--success)' : 'var(--border)'}`,
                   background: n.is_resolved ? 'var(--success)' : 'transparent',
@@ -126,7 +143,7 @@ function FamilyLedger({ state, setState }) {
                   flexShrink: 0, marginTop: 2,
                 }}>
                   {n.is_resolved && <Icon name="check" size={9} stroke={2.5} style={{ color: '#fff' }} />}
-                </div>
+                </button>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className={n.is_resolved ? '' : 'mono'} style={{
                     fontSize: 13,
@@ -135,7 +152,8 @@ function FamilyLedger({ state, setState }) {
                   }}>{n.content}</div>
                   <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{n.created_at}{n.resolved_at && ` → resolved ${n.resolved_at}`}</div>
                 </div>
-              </button>
+                <button onClick={() => deleteNote(n.id)} title="Delete note" style={{ ...financeActionButtonStyle, color: 'var(--danger)' }}><Icon name="trash" size={14} /></button>
+              </div>
             ))}
           </div>
         </Card>
@@ -198,6 +216,7 @@ function FamilyLedger({ state, setState }) {
       <QuickFamilyModal open={addOpen} onClose={() => setAddOpen(false)} onSave={(t) => {
         setState(s => ({ ...s, family: { ...s.family, transactions: [t, ...s.family.transactions] }}));
       }} />
+      <QuickFamilyModal open={!!editingEntry} initial={editingEntry} onClose={() => setEditingEntry(null)} onSave={saveEntry} />
     </div>
   );
 }

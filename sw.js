@@ -1,4 +1,4 @@
-const CACHE_NAME = 'life-os-pwa-v5';
+const CACHE_NAME = 'life-os-pwa-v6';
 
 const APP_ASSETS = [
   './',

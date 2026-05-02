@@ -53,7 +53,7 @@ if (existsSync('manifest.webmanifest')) {
 if (existsSync('sw.js')) {
   const sw = readFileSync('sw.js', 'utf8');
   const requiredSw = [
-    "const CACHE_NAME = 'life-os-pwa-v5';",
+    "const CACHE_NAME = 'life-os-pwa-v6';",
     'Life OS v2.html',
     'src/v2/app.jsx',
     'manifest.webmanifest',
@@ -99,6 +99,9 @@ if (existsSync('src/v2/mobile.jsx')) {
     "setSheet({ type: 'task', item: t })",
     'MobileExpenseForm initial=',
     'MobileTaskForm initial=',
+    'MobileIncomeForm initial=',
+    'MobileSavingsTxForm initial=',
+    'onFamilyEdit',
   ];
 
   for (const marker of requiredMobile) {
@@ -125,10 +128,20 @@ if (existsSync('src/v2/finance.jsx')) {
   const finance = readFileSync('src/v2/finance.jsx', 'utf8');
   const requiredFinance = [
     'const [editingExpense, setEditingExpense]',
+    'const [editingIncome, setEditingIncome]',
+    'const [editingTx, setEditingTx]',
+    'const [editingAccount, setEditingAccount]',
     'deleteExpense',
+    'deleteIncome',
+    'deleteTx',
     'onEdit={() => setEditingExpense(e)}',
+    'onEdit={() => setEditingIncome(e)}',
     'onDelete={() => deleteExpense(e.id)}',
+    'onDelete={() => deleteIncome(e.id)}',
     'QuickExpenseModal open={!!editingExpense}',
+    'QuickIncomeModal open={!!editingIncome}',
+    'QuickSavingsTxModal open={!!editingTx}',
+    'QuickSavingsAccountModal open={!!editingAccount}',
   ];
 
   for (const marker of requiredFinance) {
@@ -145,10 +158,28 @@ if (existsSync('src/v2/modals.jsx')) {
     "initial ? 'Save changes' : 'Add task'",
     "initial ? 'Edit expense' : 'Log an expense'",
     "initial ? 'Save changes' : 'Log'",
+    'function QuickIncomeModal({ open, onClose, onSave, initial })',
+    'function QuickSavingsTxModal({ open, onClose, onSave, accounts, initial })',
+    'function QuickSavingsAccountModal({ open, onClose, onSave, initial })',
+    'function QuickFamilyModal({ open, onClose, onSave, initial })',
   ];
 
   for (const marker of requiredModals) {
     if (!modals.includes(marker)) errors.push(`src/v2/modals.jsx missing marker: ${marker}`);
+  }
+}
+
+if (existsSync('src/v2/family.jsx')) {
+  const family = readFileSync('src/v2/family.jsx', 'utf8');
+  const requiredFamily = [
+    'const [editingEntry, setEditingEntry]',
+    'deleteEntry',
+    'deleteNote',
+    'QuickFamilyModal open={!!editingEntry}',
+  ];
+
+  for (const marker of requiredFamily) {
+    if (!family.includes(marker)) errors.push(`src/v2/family.jsx missing marker: ${marker}`);
   }
 }
 

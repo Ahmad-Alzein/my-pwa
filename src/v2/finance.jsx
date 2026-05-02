@@ -211,11 +211,23 @@ function ExpensesTab({ state, setState }) {
 }
 
 function IncomeTab({ state, setState }) {
+  const [addOpen, setAddOpen] = React.useState(false);
+  const [editingIncome, setEditingIncome] = React.useState(null);
   const total = state.income.reduce((a,b) => a + b.amount, 0);
+  const saveIncome = (income) => setState(s => ({
+    ...s,
+    income: s.income.map(i => i.id === income.id ? income : i)
+  }));
+  const deleteIncome = (id) => {
+    if (!window.confirm('Delete this income entry?')) return;
+    setState(s => ({ ...s, income: s.income.filter(i => i.id !== id) }));
+  };
   return (
     <div>
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center' }}>
         <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{state.income.length} entries · <Amount value={total} size="sm" tone="income" /></div>
+        <div style={{ flex: 1 }} />
+        <Button icon="plus" onClick={() => setAddOpen(true)}>Log income</Button>
       </div>
       <Card padding="0">
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -224,6 +236,7 @@ function IncomeTab({ state, setState }) {
             <th style={thStyle2}>Source</th>
             <th style={thStyle2}>Tag</th>
             <th style={{ ...thStyle2, textAlign: 'right' }}>Amount</th>
+            <th style={{ ...thStyle2, textAlign: 'right' }}>Actions</th>
           </tr></thead>
           <tbody>
             {state.income.map(e => (
@@ -232,18 +245,48 @@ function IncomeTab({ state, setState }) {
                 <td style={tdStyle2}>{e.source}</td>
                 <td style={tdStyle2}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{e.tag}</span></td>
                 <td style={{ ...tdStyle2, textAlign: 'right' }}><Amount value={e.amount} tone="income" size="sm" /></td>
+                <td style={{ ...tdStyle2, textAlign: 'right' }}>
+                  <FinanceRowActions onEdit={() => setEditingIncome(e)} onDelete={() => deleteIncome(e.id)} />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </Card>
+      <QuickIncomeModal open={addOpen} onClose={() => setAddOpen(false)} onSave={(x) => setState(s => ({ ...s, income: [x, ...s.income] }))} />
+      <QuickIncomeModal open={!!editingIncome} initial={editingIncome} onClose={() => setEditingIncome(null)} onSave={saveIncome} />
     </div>
   );
 }
 
 function SavingsTab({ state, setState, savingsByAccount }) {
+  const [txOpen, setTxOpen] = React.useState(false);
+  const [editingTx, setEditingTx] = React.useState(null);
+  const [editingAccount, setEditingAccount] = React.useState(null);
+  const saveTx = (tx) => setState(s => ({
+    ...s,
+    savings: {
+      ...s.savings,
+      transactions: s.savings.transactions.map(t => t.id === tx.id ? tx : t)
+    }
+  }));
+  const deleteTx = (id) => {
+    if (!window.confirm('Delete this savings movement?')) return;
+    setState(s => ({ ...s, savings: { ...s.savings, transactions: s.savings.transactions.filter(t => t.id !== id) } }));
+  };
+  const saveAccount = (account) => setState(s => ({
+    ...s,
+    savings: {
+      ...s.savings,
+      accounts: s.savings.accounts.map(a => a.id === account.id ? account : a)
+    }
+  }));
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+        <Button variant="secondary" icon="plus" onClick={() => setEditingAccount({ id: 'new', name: '', target_amount: 0 })}>New account</Button>
+        <Button icon="plus" onClick={() => setTxOpen(true)}>New movement</Button>
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
         {savingsByAccount.map(acc => {
           const pct = Math.min((acc.balance / acc.target_amount) * 100, 100);
@@ -255,16 +298,22 @@ function SavingsTab({ state, setState, savingsByAccount }) {
                   <div className="serif" style={{ fontSize: 20, fontWeight: 500, color: 'var(--text-primary)' }}>{acc.name}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>Target <Amount value={acc.target_amount} size="sm" tone="muted" /></div>
                 </div>
-                <Amount value={acc.balance} size="xl" tone="accent" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Amount value={acc.balance} size="xl" tone="accent" />
+                  <button onClick={() => setEditingAccount(acc)} title="Edit account" style={financeActionButtonStyle}><Icon name="edit" size={14} /></button>
+                </div>
               </div>
               <div style={{ height: 4, background: 'var(--bg-tertiary)', borderRadius: 2, overflow: 'hidden', marginBottom: 16 }}>
                 <div style={{ width: `${pct}%`, height: '100%', background: 'var(--accent)' }} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {txs.map(t => (
-                  <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+                  <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, fontSize: 12 }}>
                     <span style={{ color: 'var(--text-secondary)' }}>{t.notes || t.transaction_type} <span className="mono" style={{ color: 'var(--text-muted)', marginLeft: 6 }}>{t.date}</span></span>
-                    <Amount value={t.transaction_type === 'deposit' ? t.amount : -t.amount} size="sm" tone={t.transaction_type === 'deposit' ? 'income' : 'expense'} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Amount value={t.transaction_type === 'deposit' ? t.amount : -t.amount} size="sm" tone={t.transaction_type === 'deposit' ? 'income' : 'expense'} />
+                      <FinanceRowActions onEdit={() => setEditingTx(t)} onDelete={() => deleteTx(t.id)} />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -272,6 +321,17 @@ function SavingsTab({ state, setState, savingsByAccount }) {
           );
         })}
       </div>
+      <QuickSavingsTxModal open={txOpen} onClose={() => setTxOpen(false)} accounts={state.savings.accounts} onSave={(tx) => setState(s => ({ ...s, savings: { ...s.savings, transactions: [tx, ...s.savings.transactions] } }))} />
+      <QuickSavingsTxModal open={!!editingTx} initial={editingTx} onClose={() => setEditingTx(null)} accounts={state.savings.accounts} onSave={saveTx} />
+      <QuickSavingsAccountModal open={!!editingAccount} initial={editingAccount?.id === 'new' ? null : editingAccount} onClose={() => setEditingAccount(null)} onSave={(account) => {
+        setState(s => ({
+          ...s,
+          savings: {
+            ...s.savings,
+            accounts: editingAccount?.id === 'new' ? [account, ...s.savings.accounts] : s.savings.accounts.map(a => a.id === account.id ? account : a)
+          }
+        }));
+      }} />
     </div>
   );
 }

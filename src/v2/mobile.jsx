@@ -11,8 +11,13 @@ function Mobile({ state, setState, theme, onToggleTheme, framed = true }) {
           <div style={{ flex: 1, overflow: 'auto', padding: contentPadding }}>
             {tab === 'home' && <MobileHome state={state} setState={setState} />}
             {tab === 'tasks' && <MobileTasks state={state} setState={setState} onEdit={(t) => setSheet({ type: 'task', item: t })} />}
-            {tab === 'finance' && <MobileFinance state={state} setState={setState} onAdd={() => setSheet({ type: 'expense' })} onEdit={(e) => setSheet({ type: 'expense', item: e })} />}
-            {tab === 'family' && <MobileFamily state={state} setState={setState} onAdd={() => setSheet({ type: 'family' })} />}
+            {tab === 'finance' && <MobileFinance state={state} setState={setState}
+              onAdd={() => setSheet({ type: 'expense' })}
+              onEdit={(e) => setSheet({ type: 'expense', item: e })}
+              onIncome={(i) => setSheet({ type: 'income', item: i })}
+              onSavingsTx={(tx) => setSheet({ type: 'savingsTx', item: tx })}
+              onFamilyEdit={(entry) => setSheet({ type: 'family', item: entry })} />}
+            {tab === 'family' && <MobileFamily state={state} setState={setState} onAdd={() => setSheet({ type: 'family' })} onEdit={(entry) => setSheet({ type: 'family', item: entry })} />}
             {tab === 'learn' && <MobileLearn state={state} />}
           </div>
 
@@ -69,7 +74,41 @@ function Mobile({ state, setState, theme, onToggleTheme, framed = true }) {
             }} />
           </BottomSheet>
           <BottomSheet open={sheet?.type === 'family'} onClose={() => setSheet(null)} title="Family entry">
-            <MobileFamilyForm onSubmit={(x) => { setState(s => ({ ...s, family: { ...s.family, transactions: [x, ...s.family.transactions] }})); setSheet(null); }} />
+            <MobileFamilyForm initial={sheet?.item} onSubmit={(x) => {
+              setState(s => ({
+                ...s,
+                family: {
+                  ...s.family,
+                  transactions: sheet?.item
+                    ? s.family.transactions.map(t => t.id === x.id ? x : t)
+                    : [x, ...s.family.transactions]
+                }
+              }));
+              setSheet(null);
+            }} />
+          </BottomSheet>
+          <BottomSheet open={sheet?.type === 'income'} onClose={() => setSheet(null)} title={sheet?.item ? 'Edit income' : 'Log income'}>
+            <MobileIncomeForm initial={sheet?.item} onSubmit={(x) => {
+              setState(s => ({
+                ...s,
+                income: sheet?.item ? s.income.map(i => i.id === x.id ? x : i) : [x, ...s.income]
+              }));
+              setSheet(null);
+            }} />
+          </BottomSheet>
+          <BottomSheet open={sheet?.type === 'savingsTx'} onClose={() => setSheet(null)} title={sheet?.item ? 'Edit movement' : 'Savings movement'}>
+            <MobileSavingsTxForm initial={sheet?.item} accounts={state.savings.accounts} onSubmit={(x) => {
+              setState(s => ({
+                ...s,
+                savings: {
+                  ...s.savings,
+                  transactions: sheet?.item
+                    ? s.savings.transactions.map(t => t.id === x.id ? x : t)
+                    : [x, ...s.savings.transactions]
+                }
+              }));
+              setSheet(null);
+            }} />
           </BottomSheet>
           <BottomSheet open={sheet?.type === 'task'} onClose={() => setSheet(null)} title={sheet?.item ? 'Edit task' : 'New task'}>
             <MobileTaskForm initial={sheet?.item} onSubmit={(x) => {
@@ -175,7 +214,7 @@ function MobileTasks({ state, setState, onEdit }) {
   );
 }
 
-function MobileFinance({ state, setState, onAdd, onEdit }) {
+function MobileFinance({ state, setState, onAdd, onEdit, onIncome, onSavingsTx, onFamilyEdit }) {
   const [financeTab, setFinanceTab] = React.useState('overview');
   const ym = window.iso(new Date()).slice(0, 7);
   const monthSpend = state.expenses.filter(e => e.date.startsWith(ym)).reduce((a,b) => a+b.amount, 0);
@@ -187,6 +226,14 @@ function MobileFinance({ state, setState, onAdd, onEdit }) {
   const removeExpense = (id) => {
     if (!window.confirm('Delete this expense?')) return;
     setState(s => ({ ...s, expenses: s.expenses.filter(e => e.id !== id) }));
+  };
+  const removeIncome = (id) => {
+    if (!window.confirm('Delete this income entry?')) return;
+    setState(s => ({ ...s, income: s.income.filter(i => i.id !== id) }));
+  };
+  const removeSavingsTx = (id) => {
+    if (!window.confirm('Delete this savings movement?')) return;
+    setState(s => ({ ...s, savings: { ...s.savings, transactions: s.savings.transactions.filter(t => t.id !== id) } }));
   };
   return (
     <div>
@@ -218,6 +265,8 @@ function MobileFinance({ state, setState, onAdd, onEdit }) {
       )}
 
       {financeTab === 'expenses' && (
+        <>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}><Button size="sm" icon="plus" onClick={onAdd}>Expense</Button></div>
         <Card padding="0">
           {state.expenses.slice(0, 20).map((e, i) => (
             <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderBottom: '1px solid var(--border-soft)' }}>
@@ -231,24 +280,31 @@ function MobileFinance({ state, setState, onAdd, onEdit }) {
             </div>
           ))}
         </Card>
+        </>
       )}
 
       {financeTab === 'income' && (
+        <>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}><Button size="sm" icon="plus" onClick={() => onIncome(null)}>Income</Button></div>
         <Card padding="0">
           {state.income.map((e, i) => (
-            <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', borderBottom: '1px solid var(--border-soft)' }}>
+            <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderBottom: '1px solid var(--border-soft)' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13 }}>{e.source}</div>
                 <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{e.tag} · {e.date}</div>
               </div>
               <Amount value={e.amount} size="sm" tone="income" />
+              <button onClick={() => onIncome(e)} title="Edit" style={mobileIconButtonStyle}><Icon name="edit" size={14} /></button>
+              <button onClick={() => removeIncome(e.id)} title="Delete" style={{ ...mobileIconButtonStyle, color: 'var(--danger)' }}><Icon name="trash" size={14} /></button>
             </div>
           ))}
         </Card>
+        </>
       )}
 
       {financeTab === 'savings' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}><Button size="sm" icon="plus" onClick={() => onSavingsTx(null)}>Movement</Button></div>
           {state.savings.accounts.map(acc => {
             const txs = state.savings.transactions.filter(t => t.account_id === acc.id);
             const balance = txs.reduce((s, t) => s + (t.transaction_type === 'deposit' ? t.amount : -t.amount), 0);
@@ -259,22 +315,34 @@ function MobileFinance({ state, setState, onAdd, onEdit }) {
                   <Amount value={balance} size="lg" tone="accent" />
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Target <Amount value={acc.target_amount} size="sm" tone="muted" /></div>
+                {txs.slice(0, 3).map(tx => (
+                  <div key={tx.id} style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 10, marginTop: 10, borderTop: '1px solid var(--border-soft)' }}>
+                    <div style={{ flex: 1, minWidth: 0, fontSize: 11, color: 'var(--text-secondary)' }}>{tx.notes || tx.transaction_type} <span className="mono" style={{ color: 'var(--text-muted)' }}>{tx.date}</span></div>
+                    <Amount value={tx.transaction_type === 'deposit' ? tx.amount : -tx.amount} size="sm" tone={tx.transaction_type === 'deposit' ? 'income' : 'expense'} />
+                    <button onClick={() => onSavingsTx(tx)} title="Edit" style={mobileIconButtonStyle}><Icon name="edit" size={14} /></button>
+                    <button onClick={() => removeSavingsTx(tx.id)} title="Delete" style={{ ...mobileIconButtonStyle, color: 'var(--danger)' }}><Icon name="trash" size={14} /></button>
+                  </div>
+                ))}
               </Card>
             );
           })}
         </div>
       )}
 
-      {financeTab === 'family' && <MobileFamily state={state} />}
+      {financeTab === 'family' && <MobileFamily state={state} setState={setState} onEdit={onFamilyEdit} />}
     </div>
   );
 }
 
-function MobileFamily({ state }) {
+function MobileFamily({ state, setState, onEdit }) {
   const txs = state.family.transactions;
   const expense = txs.filter(t => t.transaction_type === 'expense').reduce((a,b) => a+b.amount, 0);
   const income = txs.filter(t => t.transaction_type === 'income').reduce((a,b) => a+b.amount, 0);
   const net = income - expense;
+  const remove = (id) => {
+    if (!window.confirm('Delete this family entry?')) return;
+    setState(s => ({ ...s, family: { ...s.family, transactions: s.family.transactions.filter(t => t.id !== id) } }));
+  };
   return (
     <div>
       <h1 className="serif" style={{ margin: '4px 0 16px', fontSize: 24, fontWeight: 500, letterSpacing: '-0.01em' }}>Family</h1>
@@ -299,6 +367,8 @@ function MobileFamily({ state }) {
               <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{t.tag} · {t.date}</div>
             </div>
             <Amount value={t.transaction_type === 'income' ? t.amount : -t.amount} size="sm" tone={t.transaction_type === 'income' ? 'income' : 'expense'} />
+            {onEdit && <button onClick={() => onEdit(t)} title="Edit" style={mobileIconButtonStyle}><Icon name="edit" size={14} /></button>}
+            {onEdit && <button onClick={() => remove(t.id)} title="Delete" style={{ ...mobileIconButtonStyle, color: 'var(--danger)' }}><Icon name="trash" size={14} /></button>}
           </div>
         ))}
       </Card>
@@ -359,15 +429,68 @@ function MobileExpenseForm({ onSubmit, initial }) {
   );
 }
 
-function MobileFamilyForm({ onSubmit }) {
-  const [d, setD] = React.useState(''); const [a, setA] = React.useState('');
-  const [type, setType] = React.useState('expense');
+function MobileIncomeForm({ onSubmit, initial }) {
+  const [source, setSource] = React.useState(initial?.source || '');
+  const [amount, setAmount] = React.useState(initial ? String(initial.amount) : '');
+  const [tag, setTag] = React.useState(initial?.tag || 'Salary');
+  const [date, setDate] = React.useState(initial?.date || window.iso(new Date()));
+  React.useEffect(() => {
+    setSource(initial?.source || '');
+    setAmount(initial ? String(initial.amount) : '');
+    setTag(initial?.tag || 'Salary');
+    setDate(initial?.date || window.iso(new Date()));
+  }, [initial]);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <Field label="Source"><Input autoFocus value={source} onChange={e => setSource(e.target.value)} /></Field>
+      <Field label="Amount"><Input value={amount} onChange={e => setAmount(e.target.value)} inputMode="decimal" /></Field>
+      <Field label="Date"><Input type="date" value={date} onChange={e => setDate(e.target.value)} /></Field>
+      <Field label="Tag"><Input value={tag} onChange={e => setTag(e.target.value)} /></Field>
+      <Button onClick={() => { if (source && parseFloat(amount)) onSubmit({ ...(initial || { id: 'i' + Date.now(), notes: '' }), source, amount: parseFloat(amount), tag, date }); }}>{initial ? 'Save changes' : 'Log income'}</Button>
+    </div>
+  );
+}
+
+function MobileSavingsTxForm({ onSubmit, accounts, initial }) {
+  const [accountId, setAccountId] = React.useState(initial?.account_id || accounts?.[0]?.id || '');
+  const [amount, setAmount] = React.useState(initial ? String(initial.amount) : '');
+  const [type, setType] = React.useState(initial?.transaction_type || 'deposit');
+  const [date, setDate] = React.useState(initial?.date || window.iso(new Date()));
+  const [notes, setNotes] = React.useState(initial?.notes || '');
+  React.useEffect(() => {
+    setAccountId(initial?.account_id || accounts?.[0]?.id || '');
+    setAmount(initial ? String(initial.amount) : '');
+    setType(initial?.transaction_type || 'deposit');
+    setDate(initial?.date || window.iso(new Date()));
+    setNotes(initial?.notes || '');
+  }, [initial, accounts]);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <Segmented value={type} onChange={setType} options={[{value:'deposit',label:'Deposit'},{value:'withdrawal',label:'Withdraw'}]} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }} />
+      <Field label="Account"><Select value={accountId} onChange={e => setAccountId(e.target.value)}>{accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}</Select></Field>
+      <Field label="Amount"><Input value={amount} onChange={e => setAmount(e.target.value)} inputMode="decimal" /></Field>
+      <Field label="Date"><Input type="date" value={date} onChange={e => setDate(e.target.value)} /></Field>
+      <Field label="Notes"><Input value={notes} onChange={e => setNotes(e.target.value)} /></Field>
+      <Button onClick={() => { if (accountId && parseFloat(amount)) onSubmit({ ...(initial || { id: 'st' + Date.now() }), account_id: accountId, amount: parseFloat(amount), transaction_type: type, date, notes }); }}>{initial ? 'Save changes' : 'Save movement'}</Button>
+    </div>
+  );
+}
+
+function MobileFamilyForm({ onSubmit, initial }) {
+  const [d, setD] = React.useState(initial?.description || '');
+  const [a, setA] = React.useState(initial ? String(initial.amount) : '');
+  const [type, setType] = React.useState(initial?.transaction_type || 'expense');
+  React.useEffect(() => {
+    setD(initial?.description || '');
+    setA(initial ? String(initial.amount) : '');
+    setType(initial?.transaction_type || 'expense');
+  }, [initial]);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <Segmented value={type} onChange={setType} options={[{value:'expense',label:'Spent'},{value:'income',label:'Received'}]} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }} />
       <Field label="Description"><Input autoFocus value={d} onChange={e => setD(e.target.value)} /></Field>
       <Field label="Amount"><Input value={a} onChange={e => setA(e.target.value)} inputMode="decimal" /></Field>
-      <Button onClick={() => { if (d && parseFloat(a)) onSubmit({ id: 'ft' + Date.now(), description: d, amount: parseFloat(a), transaction_type: type, date: window.iso(new Date()), tag: 'Other', payment_method: 'cash', person: 'brother', notes: '' }); }}>Save</Button>
+      <Button onClick={() => { if (d && parseFloat(a)) onSubmit({ ...(initial || { id: 'ft' + Date.now(), tag: 'Other', payment_method: 'cash', person: 'brother', notes: '', date: window.iso(new Date()) }), description: d, amount: parseFloat(a), transaction_type: type }); }}>{initial ? 'Save changes' : 'Save'}</Button>
     </div>
   );
 }

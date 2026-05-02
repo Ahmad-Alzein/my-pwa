@@ -76,22 +76,30 @@ function QuickExpenseModal({ open, onClose, onSave, initial }) {
   );
 }
 
-function QuickFamilyModal({ open, onClose, onSave }) {
+function QuickFamilyModal({ open, onClose, onSave, initial }) {
   const [description, setDescription] = React.useState('');
   const [amount, setAmount] = React.useState('');
   const [txType, setTxType] = React.useState('expense');
   const [tag, setTag] = React.useState('Groceries');
   const [date, setDate] = React.useState(window.iso(new Date()));
   const [payment, setPayment] = React.useState('cash');
-  React.useEffect(() => { if (open) { setDescription(''); setAmount(''); } }, [open]);
+  React.useEffect(() => {
+    if (!open) return;
+    setDescription(initial?.description || '');
+    setAmount(initial ? String(initial.amount) : '');
+    setTxType(initial?.transaction_type || 'expense');
+    setTag(initial?.tag || 'Groceries');
+    setDate(initial?.date || window.iso(new Date()));
+    setPayment(initial?.payment_method || 'cash');
+  }, [open, initial]);
   const submit = () => {
     const a = parseFloat(amount);
     if (!description.trim() || !a) return;
-    onSave({ id: 'ft' + Date.now(), description, amount: a, transaction_type: txType, date, tag, payment_method: payment, person: 'brother', notes: '' });
+    onSave({ ...(initial || { id: 'ft' + Date.now(), person: 'brother', notes: '' }), description: description.trim(), amount: a, transaction_type: txType, date, tag, payment_method: payment });
     onClose();
   };
   return (
-    <Modal open={open} onClose={onClose} eyebrow="Family ledger" title="New family entry">
+    <Modal open={open} onClose={onClose} eyebrow="Family ledger" title={initial ? 'Edit family entry' : 'New family entry'}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <Segmented
           value={txType}
@@ -110,11 +118,114 @@ function QuickFamilyModal({ open, onClose, onSave }) {
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button onClick={submit}>Save entry</Button>
+          <Button onClick={submit}>{initial ? 'Save changes' : 'Save entry'}</Button>
         </div>
       </div>
     </Modal>
   );
 }
 
-Object.assign(window, { QuickTaskModal, QuickExpenseModal, QuickFamilyModal });
+function QuickIncomeModal({ open, onClose, onSave, initial }) {
+  const [source, setSource] = React.useState('');
+  const [amount, setAmount] = React.useState('');
+  const [tag, setTag] = React.useState('Salary');
+  const [date, setDate] = React.useState(window.iso(new Date()));
+  React.useEffect(() => {
+    if (!open) return;
+    setSource(initial?.source || '');
+    setAmount(initial ? String(initial.amount) : '');
+    setTag(initial?.tag || 'Salary');
+    setDate(initial?.date || window.iso(new Date()));
+  }, [open, initial]);
+  const submit = () => {
+    const a = parseFloat(amount);
+    if (!source.trim() || !a) return;
+    onSave({ ...(initial || { id: 'i' + Date.now(), notes: '' }), source: source.trim(), amount: a, tag, date });
+    onClose();
+  };
+  return (
+    <Modal open={open} onClose={onClose} eyebrow={initial ? 'Edit entry' : 'New entry'} title={initial ? 'Edit income' : 'Log income'}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <Field label="Source"><Input autoFocus value={source} onChange={e => setSource(e.target.value)} placeholder="Salary, transfer, ..." /></Field>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <Field label="Amount"><Input value={amount} onChange={e => setAmount(e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()} placeholder="0.00" inputMode="decimal" /></Field>
+          <Field label="Date"><Input type="date" value={date} onChange={e => setDate(e.target.value)} /></Field>
+        </div>
+        <Field label="Tag"><Input value={tag} onChange={e => setTag(e.target.value)} placeholder="Salary" /></Field>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button onClick={submit}>{initial ? 'Save changes' : 'Log income'}</Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function QuickSavingsTxModal({ open, onClose, onSave, accounts, initial }) {
+  const [accountId, setAccountId] = React.useState(accounts?.[0]?.id || '');
+  const [amount, setAmount] = React.useState('');
+  const [txType, setTxType] = React.useState('deposit');
+  const [date, setDate] = React.useState(window.iso(new Date()));
+  const [notes, setNotes] = React.useState('');
+  React.useEffect(() => {
+    if (!open) return;
+    setAccountId(initial?.account_id || accounts?.[0]?.id || '');
+    setAmount(initial ? String(initial.amount) : '');
+    setTxType(initial?.transaction_type || 'deposit');
+    setDate(initial?.date || window.iso(new Date()));
+    setNotes(initial?.notes || '');
+  }, [open, initial, accounts]);
+  const submit = () => {
+    const a = parseFloat(amount);
+    if (!accountId || !a) return;
+    onSave({ ...(initial || { id: 'st' + Date.now() }), account_id: accountId, amount: a, transaction_type: txType, date, notes: notes.trim() });
+    onClose();
+  };
+  return (
+    <Modal open={open} onClose={onClose} eyebrow="Savings" title={initial ? 'Edit movement' : 'New savings movement'}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <Segmented value={txType} onChange={setTxType} options={[{ value: 'deposit', label: 'Deposit' }, { value: 'withdrawal', label: 'Withdrawal' }]} style={{ width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr' }} />
+        <Field label="Account"><Select value={accountId} onChange={e => setAccountId(e.target.value)}>{accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}</Select></Field>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <Field label="Amount"><Input value={amount} onChange={e => setAmount(e.target.value)} inputMode="decimal" placeholder="0.00" /></Field>
+          <Field label="Date"><Input type="date" value={date} onChange={e => setDate(e.target.value)} /></Field>
+        </div>
+        <Field label="Notes"><Input value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional" /></Field>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button onClick={submit}>{initial ? 'Save changes' : 'Save movement'}</Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function QuickSavingsAccountModal({ open, onClose, onSave, initial }) {
+  const [name, setName] = React.useState('');
+  const [target, setTarget] = React.useState('');
+  React.useEffect(() => {
+    if (!open) return;
+    setName(initial?.name || '');
+    setTarget(initial ? String(initial.target_amount || 0) : '');
+  }, [open, initial]);
+  const submit = () => {
+    const targetAmount = parseFloat(target);
+    if (!name.trim() || !targetAmount) return;
+    onSave({ ...(initial || { id: 'sa' + Date.now() }), name: name.trim(), target_amount: targetAmount });
+    onClose();
+  };
+  return (
+    <Modal open={open} onClose={onClose} eyebrow="Savings" title={initial ? 'Edit account' : 'New savings account'}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <Field label="Name"><Input autoFocus value={name} onChange={e => setName(e.target.value)} placeholder="Emergency fund" /></Field>
+        <Field label="Target"><Input value={target} onChange={e => setTarget(e.target.value)} inputMode="decimal" placeholder="0.00" /></Field>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button onClick={submit}>{initial ? 'Save changes' : 'Save account'}</Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+Object.assign(window, { QuickTaskModal, QuickExpenseModal, QuickFamilyModal, QuickIncomeModal, QuickSavingsTxModal, QuickSavingsAccountModal });
