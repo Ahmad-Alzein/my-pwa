@@ -1,0 +1,181 @@
+/* ─────────────────────────────────────────────────────────────
+   Life OS — Atelier Design System
+   White + Dark Blue palette (revised from warm Atelier base)
+   ─────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+/* ── Base color tokens — light theme ─────────────────────────── */
+html[data-theme="light"], :root {
+  /* Surfaces — warm whites graduating to soft greys */
+  --bg-primary:   #FAFBFD;     /* page background — paper white */
+  --bg-secondary: #F1F4F9;     /* card surfaces */
+  --bg-tertiary:  #E4EAF2;     /* recessed wells */
+  --bg-raised:   #FFFFFF;      /* elevated cards / modals */
+
+  /* Borders */
+  --border:       #C9D2DF;
+  --border-soft:  #E4EAF2;
+
+  /* Text — navy-leaning ink */
+  --text-primary:   #0E1A2B;   /* deep navy ink */
+  --text-secondary: #4A5468;
+  --text-muted:     #8E97A8;
+
+  /* Brand accent — dark blue (replaces terracotta) */
+  --accent:       #1E3A8A;     /* dark blue */
+  --accent-hover: #15296B;
+  --accent-soft:  #E0E7F4;
+
+  /* Semantic */
+  --success:      #2F7D5A;
+  --success-soft: #E4F1EB;
+  --warning:      #B07B1F;
+  --warning-soft: #F8EFD9;
+  --danger:       #B43B3B;
+  --danger-soft:  #F8E2E2;
+  --info:         #3B6EB4;
+  --info-soft:    #E4ECF7;
+
+  /* Shadows — soft, ink-toned */
+  --shadow-sm: 0 1px 3px rgba(14, 26, 43, 0.05);
+  --shadow-md: 0 2px 8px rgba(14, 26, 43, 0.07), 0 1px 3px rgba(14, 26, 43, 0.04);
+  --shadow-lg: 0 10px 32px rgba(14, 26, 43, 0.10), 0 2px 6px rgba(14, 26, 43, 0.05);
+
+  /* Paper grain — subtle navy-tinted noise */
+  --paper-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.06 0 0 0 0 0.10 0 0 0 0 0.17 0 0 0 0.025 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ── Dark theme — deep navy ──────────────────────────────────── */
+html[data-theme="dark"] {
+  --bg-primary:   #0A1322;     /* deep navy */
+  --bg-secondary: #122036;
+  --bg-tertiary:  #1A2C47;
+  --bg-raised:    #16263E;
+
+  --border:       rgba(199, 215, 240, 0.10);
+  --border-soft:  rgba(199, 215, 240, 0.06);
+
+  --text-primary:   #ECF1FA;
+  --text-secondary: #9AA8C0;
+  --text-muted:     #5C6884;
+
+  --accent:       #6E94E0;     /* lighter navy for dark surfaces */
+  --accent-hover: #88AAEC;
+  --accent-soft:  rgba(110, 148, 224, 0.14);
+
+  --success:      #7AB99A;
+  --success-soft: rgba(122, 185, 154, 0.10);
+  --warning:      #D4A64E;
+  --warning-soft: rgba(212, 166, 78, 0.10);
+  --danger:       #D47A7A;
+  --danger-soft:  rgba(212, 122, 122, 0.10);
+  --info:         #7BA0D8;
+  --info-soft:    rgba(123, 160, 216, 0.10);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
+
+  --paper-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.85 0 0 0 0 0.92 0 0 0 0 1 0 0 0 0.018 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ── Spacing, radii, motion ──────────────────────────────────── */
+:root {
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* Type stacks */
+  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-sans:  'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono:  'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+/* ── Base body ───────────────────────────────────────────────── */
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── Semantic typography roles ──────────────────────────────── */
+.h1, h1.atelier {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.h2, h2.atelier {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.h3, h3.atelier {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.body, p.atelier {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.body-sm {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.caps {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.serif {
+  font-family: var(--font-serif);
+}
+
+/* ── Amount tones (for currency display) ────────────────────── */
+.amount-income  { color: var(--success); }
+.amount-expense { color: var(--danger); }
+.amount-accent  { color: var(--accent); }
+.amount-muted   { color: var(--text-secondary); }
+
+/* ── Selection ──────────────────────────────────────────────── */
+::selection { background: var(--accent-soft); color: var(--text-primary); }

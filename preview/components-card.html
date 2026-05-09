@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Card surface</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 26px; background: var(--bg-primary); display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .card { background: var(--bg-secondary); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 10px; }
+  .card-raised { background: var(--bg-raised); }
+  .h2 { font-family: var(--font-serif); font-size: 18px; font-weight: 500; color: var(--text-primary); margin: 0; letter-spacing: -.01em; }
+  .body-sm { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+  .amt { font-family: var(--font-mono); font-size: 28px; color: var(--accent); font-weight: 500; letter-spacing: -.01em; margin-top: 4px; }
+</style></head>
+<body>
+  <div class="card">
+    <div class="caps">Reserves</div>
+    <div class="h2">Emergency</div>
+    <div class="amt">€2,400</div>
+    <div class="body-sm">Target €5,000 · 48% of goal</div>
+  </div>
+  <div class="card card-raised">
+    <div class="caps">Raised variant</div>
+    <div class="h2">Net balance</div>
+    <div class="amt">€185.50</div>
+    <div class="body-sm">Lifted with shadow-md on hover.</div>
+  </div>
+</body></html>

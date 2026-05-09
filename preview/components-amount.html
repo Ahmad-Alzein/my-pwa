@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Amount specimens</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 28px; background: var(--bg-primary); display: grid; grid-template-columns: repeat(2, 1fr); gap: 26px 32px; }
+  .item { display: flex; flex-direction: column; gap: 6px; }
+  .lbl { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+  .amt { font-family: var(--font-mono); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+</style></head>
+<body>
+  <div class="item"><div class="lbl">XXL · neutral · 40 / 500</div><div class="amt" style="font-size:40px;color:var(--text-primary);font-weight:500">€4,120</div></div>
+  <div class="item"><div class="lbl">XL · accent · 28 / 500</div><div class="amt" style="font-size:28px;color:var(--accent);font-weight:500">€1,250.00</div></div>
+  <div class="item"><div class="lbl">LG · income · 20 / 500</div><div class="amt" style="font-size:20px;color:var(--success);font-weight:500">+€350.00</div></div>
+  <div class="item"><div class="lbl">LG · expense · 20 / 500</div><div class="amt" style="font-size:20px;color:var(--danger);font-weight:500">−€62.40</div></div>
+  <div class="item"><div class="lbl">MD · 14</div><div class="amt" style="font-size:14px;color:var(--text-primary)">€42.00</div></div>
+  <div class="item"><div class="lbl">SM · muted · 13</div><div class="amt" style="font-size:13px;color:var(--text-muted)">€2.499</div></div>
+</body></html>
