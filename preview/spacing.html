@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Spacing scale</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 24px; background: var(--bg-primary); display: flex; flex-direction: column; gap: 10px; }
+  .row { display: flex; align-items: center; gap: 18px; font-size: 12px; }
+  .label { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); flex: 0 0 110px; }
+  .bar { background: var(--accent); height: 14px; border-radius: 3px; }
+  .px { font-family: var(--font-mono); color: var(--text-secondary); }
+</style></head>
+<body>
+  <div class="row"><div class="label">--space-xs</div><div class="bar" style="width:4px"></div><div class="px">4 px</div></div>
+  <div class="row"><div class="label">--space-sm</div><div class="bar" style="width:8px"></div><div class="px">8 px</div></div>
+  <div class="row"><div class="label">--space-md</div><div class="bar" style="width:16px"></div><div class="px">16 px</div></div>
+  <div class="row"><div class="label">--space-lg</div><div class="bar" style="width:24px"></div><div class="px">24 px</div></div>
+  <div class="row"><div class="label">--space-xl</div><div class="bar" style="width:32px"></div><div class="px">32 px</div></div>
+  <div class="row"><div class="label">--space-2xl</div><div class="bar" style="width:48px"></div><div class="px">48 px</div></div>
+  <div class="row"><div class="label">--space-3xl</div><div class="bar" style="width:64px"></div><div class="px">64 px</div></div>
+</body></html>

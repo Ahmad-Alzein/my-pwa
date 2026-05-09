@@ -1,0 +1,39 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Statement period switcher (new)</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 24px; background: var(--bg-primary); display: flex; flex-direction: column; gap: 16px; }
+  .switcher { display: flex; align-items: center; gap: 16px; }
+  .seg { display: inline-flex; background: var(--bg-tertiary); border-radius: var(--radius-md); padding: 3px; gap: 2px; }
+  .seg button { padding: 7px 16px; border-radius: 6px; font-size: 13px; border: 0; background: transparent; color: var(--text-secondary); cursor: pointer; font-family: inherit; }
+  .seg .active { background: var(--bg-raised); color: var(--text-primary); font-weight: 500; box-shadow: var(--shadow-sm); }
+  .nav { display: flex; align-items: center; gap: 8px; }
+  .nav-btn { width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-raised); display: grid; place-items: center; cursor: pointer; }
+  .nav-btn svg { width: 14px; height: 14px; stroke: var(--text-secondary); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .period { font-family: var(--font-serif); font-size: 22px; font-weight: 500; color: var(--text-primary); letter-spacing: -.01em; min-width: 200px; text-align: center; }
+  .archive { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: var(--radius-sm); background: var(--bg-secondary); border: 1px solid var(--border-soft); font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+  .chip:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+  .caps { color: var(--text-muted); }
+</style></head>
+<body>
+  <div class="switcher">
+    <div class="seg"><button class="active">Month</button><button>Year</button></div>
+    <div class="nav">
+      <button class="nav-btn"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="period">April 2025</div>
+      <button class="nav-btn"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+  </div>
+  <div>
+    <div class="caps" style="margin-bottom:8px">Archive</div>
+    <div class="archive">
+      <span class="chip">2025 · Mar</span>
+      <span class="chip">2025 · Feb</span>
+      <span class="chip">2025 · Jan</span>
+      <span class="chip">2024 · Dec</span>
+      <span class="chip">2024 · Year</span>
+      <span class="chip">2023 · Year</span>
+    </div>
+  </div>
+</body></html>

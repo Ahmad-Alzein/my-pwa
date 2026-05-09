@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Life OS — Slide Templates</title>
+<link rel="stylesheet" href="../colors_and_type.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #0E1A2B; font-family: var(--font-sans); color: var(--text-primary); }
+  deck-stage { --slide-bg: var(--bg-primary); }
+  section { width: 1920px; height: 1080px; position: relative; overflow: hidden; padding: 96px 120px;
+    background: var(--bg-primary); color: var(--text-primary); display: flex; flex-direction: column; }
+
+  .eyebrow { text-transform: uppercase; letter-spacing: 0.12em; font-size: 18px; font-weight: 500; color: var(--accent); }
+  .corner { position: absolute; top: 56px; left: 120px; display: flex; align-items: center; gap: 14px; font-size: 16px; color: var(--text-secondary); letter-spacing: 0.04em; }
+  .corner .mark { width: 36px; height: 36px; border-radius: 8px; background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-family: var(--font-serif); font-style: italic; font-size: 22px; font-weight: 500; }
+  .pageno { position: absolute; bottom: 56px; right: 120px; font-family: var(--font-mono); font-size: 14px; color: var(--text-muted); letter-spacing: 0.08em; }
+  .rule { height: 1px; background: var(--border-soft); width: 240px; margin: 32px 0; }
+
+  /* Title slide */
+  .title-slide { background: var(--bg-secondary); justify-content: center; align-items: flex-start; padding-left: 160px; }
+  .title-slide h1 { font-family: var(--font-serif); font-size: 168px; font-weight: 400; letter-spacing: -0.03em; line-height: 0.95; margin: 0; color: var(--text-primary); }
+  .title-slide h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+  .title-slide .meta { display: flex; gap: 40px; margin-top: 56px; font-size: 18px; color: var(--text-secondary); }
+  .title-slide .meta span { display: flex; align-items: center; gap: 10px; }
+  .title-slide .meta .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  /* Section divider */
+  .section-slide { background: var(--accent-deep); color: #fff; justify-content: flex-end; }
+  .section-slide .num { font-family: var(--font-mono); font-size: 22px; letter-spacing: 0.16em; opacity: 0.6; margin-bottom: 24px; }
+  .section-slide h2 { font-family: var(--font-serif); font-size: 144px; font-weight: 400; line-height: 1; letter-spacing: -0.02em; margin: 0; color: #fff; max-width: 1400px; }
+  .section-slide h2 em { font-style: italic; }
+  .section-slide .corner { color: rgba(255,255,255,0.6); }
+  .section-slide .corner .mark { background: rgba(255,255,255,0.12); }
+  .section-slide .pageno { color: rgba(255,255,255,0.4); }
+
+  /* Content slide */
+  .content-slide h2 { font-family: var(--font-serif); font-size: 80px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.05; margin: 0 0 48px; max-width: 1400px; }
+  .content-slide h2 em { font-style: italic; color: var(--accent); }
+  .content-slide .body { font-size: 28px; line-height: 1.55; color: var(--text-secondary); max-width: 1200px; }
+  .content-slide ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 24px; }
+  .content-slide li { display: flex; gap: 24px; font-size: 30px; color: var(--text-primary); }
+  .content-slide li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 18px; flex-shrink: 0; }
+  .content-slide li strong { font-weight: 500; }
+  .content-slide li span { color: var(--text-secondary); }
+
+  /* Stat slide */
+  .stat-slide { justify-content: center; align-items: center; text-align: center; }
+  .stat-slide .number { font-family: var(--font-serif); font-size: 360px; font-weight: 400; letter-spacing: -0.04em; line-height: 0.9; color: var(--accent); }
+  .stat-slide .number .unit { font-size: 120px; color: var(--text-primary); margin-left: 8px; }
+  .stat-slide .label { font-size: 36px; color: var(--text-primary); margin-top: 32px; max-width: 1100px; line-height: 1.3; }
+  .stat-slide .source { font-family: var(--font-mono); font-size: 18px; color: var(--text-muted); margin-top: 32px; letter-spacing: 0.04em; }
+
+  /* Quote slide */
+  .quote-slide { justify-content: center; padding: 96px 200px; }
+  .quote-slide .mark-q { font-family: var(--font-serif); font-style: italic; font-size: 320px; color: var(--accent-soft); line-height: 0.6; margin-bottom: -40px; }
+  .quote-slide blockquote { font-family: var(--font-serif); font-size: 72px; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; margin: 0; color: var(--text-primary); max-width: 1500px; }
+  .quote-slide blockquote em { font-style: italic; color: var(--accent); }
+  .quote-slide .attribution { display: flex; align-items: center; gap: 18px; margin-top: 56px; font-size: 22px; color: var(--text-secondary); }
+  .quote-slide .attribution .line { width: 60px; height: 1px; background: var(--accent); }
+
+  /* Comparison slide */
+  .comparison-slide h2 { font-family: var(--font-serif); font-size: 64px; font-weight: 400; letter-spacing: -0.02em; margin: 0 0 56px; }
+  .comparison-slide .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; flex: 1; }
+  .comparison-slide .col { display: flex; flex-direction: column; padding: 48px; border-radius: 16px; }
+  .comparison-slide .col.before { background: var(--bg-secondary); border: 1px solid var(--border-soft); }
+  .comparison-slide .col.after  { background: var(--accent); color: #fff; }
+  .comparison-slide .label { text-transform: uppercase; letter-spacing: 0.12em; font-size: 16px; margin-bottom: 24px; opacity: 0.7; }
+  .comparison-slide .col h3 { font-family: var(--font-serif); font-size: 44px; font-weight: 400; margin: 0 0 24px; letter-spacing: -0.01em; }
+  .comparison-slide .col p { font-size: 22px; line-height: 1.5; margin: 0; opacity: 0.85; }
+  .comparison-slide .col .stat { font-family: var(--font-serif); font-size: 96px; font-weight: 500; letter-spacing: -0.02em; margin-top: auto; }
+
+  /* Closing slide */
+  .closing-slide { background: var(--bg-secondary); justify-content: center; align-items: flex-start; padding-left: 160px; }
+  .closing-slide h1 { font-family: var(--font-serif); font-size: 200px; font-weight: 400; line-height: 0.95; margin: 0; letter-spacing: -0.03em; }
+  .closing-slide h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+  .closing-slide .contact { display: flex; gap: 64px; margin-top: 80px; font-size: 22px; color: var(--text-secondary); }
+  .closing-slide .contact div { display: flex; flex-direction: column; gap: 6px; }
+  .closing-slide .contact .label { font-size: 14px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); }
+  .closing-slide .contact .value { font-family: var(--font-mono); color: var(--text-primary); }
+</style>
+</head>
+<body>
+<deck-stage>
+
+  <!-- Slide 1 — Title -->
+  <section class="title-slide" data-screen-label="01 Title">
+    <div class="corner"><div class="mark">L</div><span>Life OS</span></div>
+    <div class="eyebrow">Q2 2026 · Internal review</div>
+    <div class="rule"></div>
+    <h1>The personal<br />operating <em>system</em>.</h1>
+    <div class="meta">
+      <span><span class="dot"></span>Ahmad Alzein</span>
+      <span><span class="dot"></span>9 May 2026</span>
+      <span><span class="dot"></span>v2.4 · navy</span>
+    </div>
+    <div class="pageno">01</div>
+  </section>
+
+  <!-- Slide 2 — Section divider -->
+  <section class="section-slide" data-screen-label="02 Section">
+    <div class="corner"><div class="mark">L</div><span>Life OS</span></div>
+    <div class="num">PART ONE</div>
+    <h2>What we <em>shipped</em><br />this quarter.</h2>
+    <div class="pageno">02</div>
+  </section>
+
+  <!-- Slide 3 — Content -->
+  <section class="content-slide" data-screen-label="03 Content">
+    <div class="corner"><div class="mark">L</div><span>Life OS</span></div>
+    <div class="eyebrow">Finance · what's new</div>
+    <h2>Statements, <em>archived</em> and reviewable.</h2>
+    <ul>
+      <li><span><strong>Monthly + yearly statements.</strong> Every period is auto-rolled and stored under <em>Finance · Archive</em>. Click to expand into a category breakdown.</span></li>
+      <li><span><strong>Bulk delete.</strong> Multi-select rows in any expense, income or family ledger; one tap to remove a batch.</span></li>
+      <li><span><strong>Family · Saving HUB.</strong> Running balance, free-form notes ("ghadi bado: 100"), and bank/cash snapshots — all native, all yours.</span></li>
+    </ul>
+    <div class="pageno">03</div>
+  </section>
+
+  <!-- Slide 4 — Stat -->
+  <section class="stat-slide" data-screen-label="04 Stat">
+    <div class="corner"><div class="mark">L</div><span>Life OS</span></div>
+    <div class="number">87<span class="unit">%</span></div>
+    <div class="label">of finance entries are now reconciled within 24 hours of import — up from 31% on the previous design.</div>
+    <div class="source">Source · internal telemetry, Apr 2026</div>
+    <div class="pageno">04</div>
+  </section>
+
+  <!-- Slide 5 — Quote -->
+  <section class="quote-slide" data-screen-label="05 Quote">
+    <div class="corner"><div class="mark">L</div><span>Life OS</span></div>
+    <div class="mark-q">"</div>
+    <blockquote>The redesign turned my finances from a chore into something I <em>actually open</em> on Sunday mornings.</blockquote>
+    <div class="attribution"><div class="line"></div>Beta tester · Lyon</div>
+    <div class="pageno">05</div>
+  </section>
+
+  <!-- Slide 6 — Comparison -->
+  <section class="comparison-slide" data-screen-label="06 Comparison">
+    <div class="corner"><div class="mark">L</div><span>Life OS</span></div>
+    <div class="eyebrow">Before / after</div>
+    <h2>One row at a time, or a <em>hundred</em>.</h2>
+    <div class="grid">
+      <div class="col before">
+        <div class="label">Before · v2.3</div>
+        <h3>Edit each entry by hand.</h3>
+        <p>Every row required its own tap-through. Cleaning a month of imports could take fifteen minutes.</p>
+        <div class="stat" style="color: var(--text-muted);">~15 min</div>
+      </div>
+      <div class="col after">
+        <div class="label">After · v2.4</div>
+        <h3>Select all, delete, done.</h3>
+        <p>Multi-select with header check-all. The action bar floats in only when you have a selection.</p>
+        <div class="stat">&lt; 30 s</div>
+      </div>
+    </div>
+    <div class="pageno">06</div>
+  </section>
+
+  <!-- Slide 7 — Closing -->
+  <section class="closing-slide" data-screen-label="07 Close">
+    <div class="corner"><div class="mark">L</div><span>Life OS</span></div>
+    <div class="eyebrow">Thank you</div>
+    <div class="rule"></div>
+    <h1>Calm. Quiet.<br /><em>Yours.</em></h1>
+    <div class="contact">
+      <div><span class="label">Repository</span><span class="value">github.com/Ahmad-Alzein/my-pwa</span></div>
+      <div><span class="label">Designer</span><span class="value">Ahmad Alzein</span></div>
+      <div><span class="label">Version</span><span class="value">v2.4 · Atelier navy</span></div>
+    </div>
+    <div class="pageno">07</div>
+  </section>
+
+</deck-stage>
+
+<script src="deck-stage.js"></script>
+</body>
+</html>

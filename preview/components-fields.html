@@ -1,0 +1,29 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Form fields</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 24px; background: var(--bg-primary); display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  label { display: flex; flex-direction: column; gap: 6px; }
+  .input, .select {
+    height: 44px; padding: 0 14px;
+    background: var(--bg-primary); border: 1px solid var(--border);
+    border-radius: var(--radius-md); color: var(--text-primary);
+    font-size: 14px; font-family: inherit; outline: none;
+  }
+  .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .select { padding-right: 36px; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238E97A8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; }
+  .seg { display: inline-flex; background: var(--bg-tertiary); border-radius: var(--radius-md); padding: 3px; gap: 2px; }
+  .seg button { padding: 6px 14px; border-radius: 6px; font-size: 13px; border: 0; background: transparent; color: var(--text-secondary); cursor: pointer; font-family: inherit; }
+  .seg .active { background: var(--bg-raised); color: var(--text-primary); font-weight: 500; box-shadow: var(--shadow-sm); }
+</style></head>
+<body>
+  <label><span class="caps">Description</span><input class="input" value="Carrefour — groceries" /></label>
+  <label><span class="caps">Category</span>
+    <select class="select"><option>Groceries</option><option>Healthcare</option></select>
+  </label>
+  <div>
+    <span class="caps" style="display:block;margin-bottom:6px">Period</span>
+    <div class="seg"><button class="active">Month</button><button>Quarter</button><button>Year</button></div>
+  </div>
+  <label><span class="caps">Amount (focused)</span><input class="input" style="border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)" value="62.40" /></label>
+</body></html>

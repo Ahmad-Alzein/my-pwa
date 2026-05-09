@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Sidebar nav row</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { margin: 0; padding: 22px; background: var(--bg-secondary); display: flex; flex-direction: column; gap: 2px; max-width: 240px; }
+  .caps { padding: 0 10px; margin: 4px 0 6px; }
+  .nav { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: var(--radius-md); color: var(--text-secondary); font-size: 14px; cursor: pointer; position: relative; }
+  .nav.active { background: var(--bg-tertiary); color: var(--text-primary); font-weight: 500; }
+  .nav.active::before { content:""; position:absolute; left:-4px; top:8px; bottom:8px; width:2px; background: var(--accent); border-radius: 2px; }
+  .nav.sub { padding-left: 24px; }
+  .nav:hover:not(.active) { background: rgba(0,0,0,0.02); }
+  svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 16px; }
+</style></head>
+<body>
+  <div class="caps">Money</div>
+  <div class="nav active"><svg viewBox="0 0 24 24"><path d="M3 7h15a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/><path d="M3 7V5a2 2 0 0 1 2-2h11"/><circle cx="17" cy="13" r="1.2"/></svg>Finance</div>
+  <div class="nav sub"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>Family</div>
+  <div class="nav"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Statements</div>
+</body></html>
