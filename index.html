@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Life OS — Atelier</title>
 <meta name="description" content="Life OS personal dashboard" />
-<meta name="theme-color" content="#FAFAF8" />
+<meta name="theme-color" content="#0E1A2B" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="Life OS" />
@@ -17,66 +17,75 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
-<style id="atelier-base">
-  *, *::before, *::after { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; height: 100%; }
-  body {
-    font-family: 'DM Sans', system-ui, sans-serif;
-    font-size: 14px;
-    color: var(--text-primary);
-    background: var(--bg-primary);
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-    transition: background-color 0.3s ease, color 0.2s ease;
-  }
-  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
-  input, textarea, select { font-family: inherit; color: inherit; }
-  ::selection { background: var(--accent-soft); color: var(--text-primary); }
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  background: var(--bg-primary, #0d1117);
+  color: var(--text-primary, #e6edf3);
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, select, textarea { font-family: inherit; color: inherit; }
+::selection { background: var(--accent-soft); color: var(--text-primary); }
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+.mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+.serif { font-family: 'Playfair Display', Georgia, serif; }
+.caps { text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; font-weight: 500; color: var(--text-muted); }
+.fade-in { animation: fadeIn 250ms ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); background-clip: content-box; border: 2px solid transparent; }
-
-  .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
-  .serif { font-family: 'Playfair Display', Georgia, serif; }
-  .caps { text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; font-weight: 500; color: var(--text-muted); }
-
-  html.theme-transition * { transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease !important; }
-
-  @media (max-width: 1500px) {
-    .atelier-mobile-aside { display: none !important; }
-  }
+/* ── Standalone theme tokens ── */
+:root {
+  --bg-primary:    #0d1117;
+  --bg-secondary:  #161b22;
+  --bg-tertiary:   #1c2128;
+  --bg-raised:     #21262d;
+  --border:        rgba(240,246,252,0.1);
+  --border-soft:   rgba(240,246,252,0.06);
+  --text-primary:  #e6edf3;
+  --text-secondary:#8b949e;
+  --text-muted:    #484f58;
+  --accent:        #58a6ff;
+  --accent-hover:  #79b8ff;
+  --accent-soft:   rgba(88,166,255,0.1);
+  --success:       #3fb950;
+  --success-soft:  rgba(63,185,80,0.1);
+  --warning:       #d29922;
+  --warning-soft:  rgba(210,153,34,0.1);
+  --danger:        #f85149;
+  --danger-soft:   rgba(248,81,73,0.1);
+  --shadow-sm:     0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:     0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg:     0 16px 40px rgba(0,0,0,0.6);
+  --ease:          cubic-bezier(0.25,0.1,0.25,1);
+  --font-mono:     'IBM Plex Mono', ui-monospace, monospace;
+  --space-xs: 4px; --space-sm: 8px; --space-md: 16px;
+  --space-lg: 24px; --space-xl: 32px;
+  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px;
+}
 </style>
 
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
 </head>
 <body>
 <div id="root"></div>
 
-<script type="text/babel" src="src/data.jsx"></script>
-
-<script type="text/babel" src="src/v2/theme.jsx"></script>
-<script type="text/babel" src="src/v2/data.jsx"></script>
-<script type="text/babel" src="src/v2/icons.jsx"></script>
-<script type="text/babel" src="src/v2/primitives.jsx"></script>
-<script type="text/babel" src="src/v2/modals.jsx"></script>
-<script type="text/babel" src="src/v2/shell.jsx"></script>
-<script type="text/babel" src="src/v2/home.jsx"></script>
-<script type="text/babel" src="src/v2/tasks.jsx"></script>
-<script type="text/babel" src="src/v2/finance.jsx"></script>
-<script type="text/babel" src="src/v2/family.jsx"></script>
-<script type="text/babel" src="src/v2/learn.jsx"></script>
-<script type="text/babel" src="src/v2/mobile.jsx"></script>
-<script type="text/babel" src="src/v2/tweaks.jsx"></script>
-<script type="text/babel" src="src/v2/app.jsx"></script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js');
-  }
-</script>
+<script type="text/babel" src="src/standalone/data.jsx"></script>
+<script type="text/babel" src="src/standalone/icons.jsx"></script>
+<script type="text/babel" src="src/standalone/primitives.jsx"></script>
+<script type="text/babel" src="src/standalone/sidebar.jsx"></script>
+<script type="text/babel" src="src/standalone/home.jsx"></script>
+<script type="text/babel" src="src/standalone/tasks.jsx"></script>
+<script type="text/babel" src="src/standalone/finance.jsx"></script>
+<script type="text/babel" src="src/standalone/family.jsx"></script>
+<script type="text/babel" src="src/standalone/library.jsx"></script>
+<script type="text/babel" src="src/standalone/app.jsx"></script>
 </body>
 </html>
