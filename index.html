@@ -87,5 +87,11 @@ input, select, textarea { font-family: inherit; color: inherit; }
 <script type="text/babel" src="src/standalone/family.jsx"></script>
 <script type="text/babel" src="src/standalone/library.jsx"></script>
 <script type="text/babel" src="src/standalone/app.jsx"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+</script>
 </body>
 </html>
