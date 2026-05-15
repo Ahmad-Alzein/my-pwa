@@ -8,10 +8,10 @@ function Sidebar({ active, onNav }) {
       { id: 'finance/statements', label: 'Statements' },
     ]},
     { id: 'family', label: 'Family', icon: 'users' },
-    { id: 'learn', label: 'Library', icon: 'book' },
+    { id: 'library', label: 'Library', icon: 'book' },
   ];
   return (
-    <aside style={{ width: 248, flexShrink: 0, height: '100vh', position: 'sticky', top: 0,
+    <aside className="sidebar" style={{ width: 248, flexShrink: 0, height: '100vh', position: 'sticky', top: 0,
       background: 'var(--bg-secondary)', borderRight: '1px solid var(--border-soft)',
       padding: '28px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
       <div style={{ padding: '0 12px 24px', display: 'flex', alignItems: 'center', gap: 10 }}>

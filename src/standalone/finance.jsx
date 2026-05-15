@@ -86,7 +86,7 @@ function FinanceOverview({ onStatements, expenses, setExpenses, income, setIncom
         </div>
       }>Overview</PageTitle>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, marginBottom: 28 }}>
+      <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, marginBottom: 28 }}>
         <Card raised>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
             <Segmented value={type} options={[{ value: 'expense', label: 'Spending' }, { value: 'income', label: 'Income' }]} onChange={setType} />
@@ -114,7 +114,7 @@ function FinanceOverview({ onStatements, expenses, setExpenses, income, setIncom
         </Card>
       </div>
 
-      <Card padding={0}>
+      <div className="table-scroll"><Card padding={0}>
         <div style={{ padding: '18px 24px', borderBottom: '1px solid var(--border-soft)', display: 'flex', alignItems: 'center', gap: 12 }}>
           <h3 className="serif" style={{ margin: 0, fontSize: 17, fontWeight: 500, flex: 1 }}>
             {type === 'expense' ? 'Expenses' : 'Income'} <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 400, marginLeft: 8 }}>{visible.length}</span>
@@ -138,7 +138,7 @@ function FinanceOverview({ onStatements, expenses, setExpenses, income, setIncom
             onDelete={() => remove([it.id])} onEdit={() => setEditing(it)} />
         ))}
         {visible.length === 0 && <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No entries in this period.</div>}
-      </Card>
+      </Card></div>
 
       <EntryModal open={addOpen} onClose={() => setAddOpen(false)} entryType={type} onSave={(e) => {
         if (type === 'expense') setExpenses([e, ...expenses]);
@@ -177,7 +177,7 @@ function Row({ item, type, selected, onToggle, onDelete, onEdit }) {
         {d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
       </div>
       <div style={{ textAlign: 'right' }}><Amount value={item.amount} tone={type === 'expense' ? 'expense' : 'income'} /></div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, opacity: hover && !selected ? 1 : 0, transition: 'opacity 0.15s' }} onClick={e => e.stopPropagation()}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4 }} onClick={e => e.stopPropagation()}>
         <button onClick={onEdit} style={{ width: 28, height: 28, borderRadius: 6, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="edit" size={14} /></button>
         <button onClick={onDelete} style={{ width: 28, height: 28, borderRadius: 6, color: 'var(--danger)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon name="trash" size={14} /></button>
       </div>

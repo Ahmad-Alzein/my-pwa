@@ -1,3 +1,31 @@
+// Bottom nav for mobile
+function BottomNav({ active, onNav }) {
+  const items = [
+    { id: 'home',    label: 'Today',   icon: 'home' },
+    { id: 'tasks',   label: 'Tasks',   icon: 'tasks' },
+    { id: 'finance', label: 'Finance', icon: 'wallet' },
+    { id: 'family',  label: 'Family',  icon: 'users' },
+    { id: 'library', label: 'Library', icon: 'book' },
+  ];
+  return (
+    <nav className="bottom-nav">
+      {items.map(it => {
+        const isActive = active === it.id || active.startsWith(it.id + '/');
+        return (
+          <button key={it.id} onClick={() => onNav(it.id)} style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+            padding: '0 12px', color: isActive ? 'var(--accent)' : 'var(--text-muted)',
+            fontSize: 10, fontWeight: isActive ? 500 : 400,
+            textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <Icon name={it.icon} size={20} stroke={isActive ? 2 : 1.5} />
+            <span>{it.label}</span>
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
 // App — state manager + router
 const STORAGE_KEY = 'lifeos.atelier.v1';
 
@@ -37,7 +65,7 @@ function App() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <Sidebar active={main} onNav={setRoute} />
-      <main style={{ flex: 1, padding: '40px 56px', maxWidth: 1280, overflow: 'auto', minHeight: '100vh' }}>
+      <main className="main-content" style={{ flex: 1, padding: '40px 56px', maxWidth: 1280, overflow: 'auto', minHeight: '100vh' }}>
         {main === 'home' && (
           <Home tasks={state.tasks} expenses={state.expenses} income={state.income} family={state.family} />
         )}
@@ -61,6 +89,7 @@ function App() {
         )}
         {main === 'library' && <Library />}
       </main>
+      <BottomNav active={main} onNav={setRoute} />
     </div>
   );
 }

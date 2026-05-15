@@ -21,7 +21,7 @@ function Home({ tasks = [], expenses = [], income = [], family = { tx: [], notes
     <div className="fade-in">
       <PageTitle eyebrow={dateStr} right={<Caps>{`Week ${Math.ceil((now.getDate() + 3) / 7)}`}</Caps>}>{greet}, Ahmad</PageTitle>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 32 }}>
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 32 }}>
         <Card raised>
           <Caps style={{ marginBottom: 10 }}>This month · spend</Caps>
           <Amount value={monthSpend} size="xxl" tone="expense" />
@@ -41,7 +41,7 @@ function Home({ tasks = [], expenses = [], income = [], family = { tx: [], notes
         </Card>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 24 }}>
+      <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 24 }}>
         <Card>
           <SectionTitle eyebrow="Today">On the agenda</SectionTitle>
           {todayTasks.length === 0 && (

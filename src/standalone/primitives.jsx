@@ -97,10 +97,10 @@ function Caps({ children, style }) {
 
 function PageTitle({ children, eyebrow, right }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16, marginBottom: 32 }}>
+    <div className="page-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 16, marginBottom: 32 }}>
       <div>{eyebrow && <Caps style={{ marginBottom: 8 }}>{eyebrow}</Caps>}
         <h1 className="serif" style={{ margin: 0, fontSize: 32, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>{children}</h1></div>
-      {right && <div style={{ paddingBottom: 4 }}>{right}</div>}
+      {right && <div className="page-title-right" style={{ paddingBottom: 4 }}>{right}</div>}
     </div>
   );
 }

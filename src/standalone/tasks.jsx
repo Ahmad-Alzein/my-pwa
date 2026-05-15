@@ -88,7 +88,7 @@ function Tasks({ tasks, setTasks }) {
         </div>
       }>Tasks</PageTitle>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
         <Card raised><Caps style={{ marginBottom: 8 }}>Open</Caps><div className="serif" style={{ fontSize: 36, fontWeight: 500, letterSpacing: '-0.02em' }}>{open}</div></Card>
         <Card raised><Caps style={{ marginBottom: 8 }}>Overdue</Caps><div className="serif" style={{ fontSize: 36, fontWeight: 500, letterSpacing: '-0.02em', color: overdue ? 'var(--danger)' : 'var(--text-primary)' }}>{overdue}</div></Card>
         <Card raised><Caps style={{ marginBottom: 8 }}>Done · today</Caps><div className="serif" style={{ fontSize: 36, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--success)' }}>{tasks.filter(t => t.done).length}</div></Card>
@@ -117,7 +117,7 @@ function Tasks({ tasks, setTasks }) {
               <Caps>{labels[k] || k}</Caps>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>{groups[k].length}</span>
             </div>
-            <Card padding={0}>
+            <div className="table-scroll"><Card padding={0}>
               {groups[k].map((t, i) => {
                 const sel = selected.has(t.id);
                 const overdueT = !t.done && new Date(t.due) < today;
@@ -147,7 +147,7 @@ function Tasks({ tasks, setTasks }) {
                   </div>
                 );
               })}
-            </Card>
+            </Card></div>
           </div>
         ))}
         {order.filter(k => groups[k]?.length).length === 0 && (

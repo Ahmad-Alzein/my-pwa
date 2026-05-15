@@ -78,7 +78,7 @@ function Family({ tx, setTx, notes, setNotes, snapshots }) {
         <Button variant="primary" icon="plus" onClick={() => setAddOpen(true)}>Log entry</Button>
       }>Saving HUB</PageTitle>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
         <Card raised>
           <Caps style={{ marginBottom: 8 }}>Outstanding</Caps>
           <Amount value={Math.abs(balance)} size="xl" tone={balance >= 0 ? 'expense' : 'income'} />
@@ -112,7 +112,7 @@ function Family({ tx, setTx, notes, setNotes, snapshots }) {
       </div>
 
       {tab === 'ledger' && (
-        <Card padding={0}>
+        <div className="table-scroll"><Card padding={0}>
           <div style={{ padding: '14px 24px', borderBottom: '1px solid var(--border-soft)', display: 'flex', alignItems: 'center', gap: 12 }}>
             <Checkbox checked={allSelected} onChange={toggleAll} />
             <span style={{ fontSize: 12, color: 'var(--text-secondary)', flex: 1 }}>{selected.size > 0 ? `${selected.size} selected` : `${sorted.length} entries`}</span>
@@ -151,7 +151,7 @@ function Family({ tx, setTx, notes, setNotes, snapshots }) {
             );
           })}
           {sorted.length === 0 && <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No entries yet. Click "Log entry" to add one.</div>}
-        </Card>
+        </Card></div>
       )}
 
       {tab === 'notes' && (
